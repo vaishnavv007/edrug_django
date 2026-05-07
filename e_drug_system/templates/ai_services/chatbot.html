@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Chatbot - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="chatbot-container">
+        <h1>AI Assistant</h1>
+        <p class="chatbot-disclaimer">Disclaimer: This AI assistant provides general information only. Always consult healthcare professionals for medical advice.</p>
+        
+        <div class="chat-window" id="chatWindow">
+            {% for message in chat_history reversed %}
+            <div class="chat-message user">
+                <div class="message-content">
+                    <strong>You:</strong> {{ message.message }}
+                </div>
+            </div>
+            <div class="chat-message bot">
+                <div class="message-content">
+                    <strong>AI:</strong> {{ message.response }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="chat-controls">
+            <button type="button" class="btn btn-secondary" id="clearChatBtn">Clear Chat</button>
+        </div>
+        
+        <form class="chat-form" id="chatForm">
+            {% csrf_token %}
+            <input type="text" name="message" id="messageInput" placeholder="Type your message..." required autocomplete="off">
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.getElementById('chatForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const messageInput = document.getElementById('messageInput');
+    const message = messageInput.value;
+    const chatWindow = document.getElementById('chatWindow');
+    
+    // Check if message is empty
+    if (!message.trim()) {
+        return;
+    }
+    
+    // Add user message to chat
+    const userMessage = document.createElement('div');
+    userMessage.className = 'chat-message user';
+    userMessage.innerHTML = '<div class="message-content"><strong>You:</strong> ' + message + '</div>';
+    chatWindow.appendChild(userMessage);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    
+    messageInput.value = '';
+    
+    // Send message to server
+    fetch('{% url "chatbot" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'message=' + encodeURIComponent(message)
+    })
+    .then(response => response.json())
+    .then(data => {
+        const botMessage = document.createElement('div');
+        botMessage.className = 'chat-message bot';
+        botMessage.innerHTML = '<div class="message-content"><strong>AI:</strong> ' + data.response + '</div>';
+        chatWindow.appendChild(botMessage);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+document.getElementById('clearChatBtn').addEventListener('click', function() {
+    if (confirm('Are you sure you want to clear all chat history?')) {
+        fetch('{% url "clear_chat" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const chatWindow = document.getElementById('chatWindow');
+                chatWindow.innerHTML = '';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

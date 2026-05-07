@@ -1,0 +1,729 @@
+{% extends 'base.html' %}
+
+{% block title %}Resources - E-Drug System{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hero Section Styling */
+.resources-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0 60px;
+    margin-bottom: 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.resources-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.resources-hero .container {
+    position: relative;
+    z-index: 1;
+}
+
+.resources-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.resources-hero p {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+/* Section Styling */
+.resources-section {
+    margin-bottom: 80px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+.resources-section:nth-child(2) { animation-delay: 0.2s; }
+.resources-section:nth-child(3) { animation-delay: 0.4s; }
+.resources-section:nth-child(4) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #667eea;
+}
+
+.section-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.section-title i {
+    color: #667eea;
+    font-size: 1.8rem;
+}
+
+/* Educational Resources Grid */
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.resource-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.resource-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+.resource-thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+}
+
+.resource-content {
+    padding: 25px;
+}
+
+.resource-type-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(102, 126, 234, 0.9);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+.resource-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+.resource-description {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Community Groups Styling */
+.groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+.group-card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.group-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.group-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    border-color: #667eea;
+}
+
+.group-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.group-description {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    min-height: 60px;
+}
+
+.group-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.member-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 20px;
+}
+
+/* Research Papers Styling */
+.papers-container {
+    display: grid;
+    gap: 25px;
+}
+
+.research-card {
+    background: white;
+    border-radius: 16px;
+    padding: 35px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border-left: 5px solid #667eea;
+}
+
+.research-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+.paper-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+.paper-abstract {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+}
+
+.paper-meta {
+    margin-bottom: 20px;
+}
+
+.paper-authors {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.paper-journal {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+
+.keyword-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.keyword-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.keyword-badge:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.paper-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Button Styling */
+.btn-primary-custom {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-outline-custom {
+    border: 2px solid #667eea;
+    color: #667eea;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-outline-custom:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    text-decoration: none;
+}
+
+.btn-member-custom {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-member-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* Empty State Styling */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.empty-state h4 {
+    color: #495057;
+    margin-bottom: 15px;
+}
+
+/* Pagination Styling */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.pagination {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.pagination a {
+    padding: 10px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    color: #495057;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.pagination a:hover {
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+}
+
+.pagination .page-current {
+    padding: 10px 16px;
+    background: #667eea;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .resources-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .resources-hero p {
+        font-size: 1.1rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .resource-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .groups-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .paper-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .btn-primary-custom,
+    .btn-outline-custom {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Loading Animation */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="resources-hero">
+    <div class="container">
+        <h1>Resources Hub</h1>
+        <p>Discover educational materials, join supportive communities, and explore cutting-edge research on addiction recovery and wellness.</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Educational Resources Section -->
+    <div class="resources-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-book-open"></i>
+                Educational Resources
+            </h2>
+        </div>
+        
+        {% if resources %}
+            <div class="resource-grid">
+                {% for resource in resources %}
+                <div class="resource-card">
+                    {% if resource.thumbnail %}
+                    <img src="{{ resource.thumbnail.url }}" alt="{{ resource.title }}" class="resource-thumbnail">
+                    {% else %}
+                    <div class="resource-thumbnail"></div>
+                    {% endif %}
+                    <span class="resource-type-badge">{{ resource.get_resource_type_display }}</span>
+                    <div class="resource-content">
+                        <h3 class="resource-title">{{ resource.title }}</h3>
+                        <p class="resource-description">{{ resource.content|truncatewords:25 }}</p>
+                        {% if resource.url %}
+                        <a href="{{ resource.url }}" target="_blank" class="btn-outline-custom">
+                            <i class="fas fa-external-link-alt"></i>
+                            View Resource
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-book"></i>
+                <h4>No Educational Resources Available</h4>
+                <p>Check back soon for informative articles, guides, and learning materials.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Community Groups Section -->
+    <div class="resources-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-users"></i>
+                Community Groups
+            </h2>
+            {% if user.is_admin or user.is_expert %}
+                <a href="{% url 'create_group' %}" class="btn-primary-custom">
+                    <i class="fas fa-plus"></i>
+                    Create Group
+                </a>
+            {% endif %}
+        </div>
+        
+        {% if groups %}
+            <div class="groups-grid">
+                {% for group in groups %}
+                <div class="group-card">
+                    <h5 class="group-title">{{ group.name }}</h5>
+                    <p class="group-description">{{ group.description|truncatewords:20 }}</p>
+                    <div class="group-meta">
+                        <div class="member-count">
+                            <i class="fas fa-users"></i>
+                            <span>{{ group.member_count }} members</span>
+                        </div>
+                        <small>Created by {{ group.created_by.username }}</small>
+                    </div>
+                    {% if user.is_authenticated and group.id|stringformat:"s" in group_membership_status %}
+                        <a href="{% url 'group_detail' group.pk %}" class="btn-member-custom">
+                            <i class="fas fa-check"></i>
+                            Member
+                        </a>
+                    {% else %}
+                        <a href="{% url 'group_detail' group.pk %}" class="btn-outline-custom">
+                            <i class="fas fa-arrow-right"></i>
+                            Join Group
+                        </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h4>No Community Groups Available</h4>
+                <p>
+                    {% if user.is_admin or user.is_expert %}
+                        Be the first to create a supportive community group!
+                    {% else %}
+                        Check back later for new groups to join and connect with others.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Research Papers Section -->
+    <div class="resources-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-microscope"></i>
+                Research Papers
+            </h2>
+            {% if user.is_expert %}
+                <a href="{% url 'create_research_paper' %}" class="btn-primary-custom">
+                    <i class="fas fa-plus"></i>
+                    Publish Paper
+                </a>
+            {% endif %}
+        </div>
+        
+        {% if research_papers %}
+            <div class="papers-container">
+                {% for paper in research_papers %}
+                <div class="research-card">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="paper-title">{{ paper.title }}</h5>
+                            <p class="paper-abstract">{{ paper.abstract|truncatewords:35 }}</p>
+                            
+                            <div class="paper-meta">
+                                <div class="paper-authors">
+                                    <i class="fas fa-user-graduate"></i> {{ paper.authors }}
+                                </div>
+                                {% if paper.journal %}
+                                <div class="paper-journal">
+                                    <i class="fas fa-journal-whills"></i> {{ paper.journal }}
+                                    {% if paper.publication_date %}
+                                        ({{ paper.publication_date|date:"Y" }})
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if paper.keywords %}
+                            <div class="keyword-badges">
+                                {% for keyword in paper.keyword_list %}
+                                <span class="keyword-badge">{{ keyword }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="paper-actions">
+                                <small class="text-muted d-block mb-3">
+                                    <i class="fas fa-calendar"></i> {{ paper.created_at|date:"M d, Y" }}
+                                </small>
+                                <small class="text-muted d-block mb-3">
+                                    <i class="fas fa-user"></i> {{ paper.published_by.username }}
+                                </small>
+                                
+                                {% if paper.pdf_file %}
+                                <a href="{{ paper.pdf_file.url }}" class="btn-outline-custom" target="_blank">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Download PDF
+                                </a>
+                                {% endif %}
+                                
+                                <a href="{% url 'research_paper_detail' paper.pk %}" class="btn-outline-custom">
+                                    <i class="fas fa-book-open"></i>
+                                    Read Paper
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-microscope"></i>
+                <h4>No Research Papers Available</h4>
+                <p>
+                    {% if user.is_expert %}
+                        Share your expertise by publishing the first research paper!
+                    {% else %}
+                        Check back soon for the latest research findings and academic papers.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="pagination-container">
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+            {% endif %}
+            
+            <span class="page-current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Add smooth scroll behavior
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate elements on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.resources-section').forEach(section => {
+        observer.observe(section);
+    });
+    
+    // Add hover effects to cards
+    document.querySelectorAll('.resource-card, .group-card, .research-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

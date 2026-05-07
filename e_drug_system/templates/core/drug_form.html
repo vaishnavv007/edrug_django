@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>{{ action }}</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="post-form-container">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">Drug Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="error">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <div class="error">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.category.id_for_label }}">Category</label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                <div class="error">{{ form.category.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.effects.id_for_label }}">Effects</label>
+                {{ form.effects }}
+                {% if form.effects.errors %}
+                <div class="error">{{ form.effects.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.risks.id_for_label }}">Risks</label>
+                {{ form.risks }}
+                {% if form.risks.errors %}
+                <div class="error">{{ form.risks.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.health_issues.id_for_label }}">Health Issues Caused</label>
+                {{ form.health_issues }}
+                {% if form.health_issues.errors %}
+                <div class="error">{{ form.health_issues.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.withdrawal_symptoms.id_for_label }}">Withdrawal Symptoms</label>
+                {{ form.withdrawal_symptoms }}
+                {% if form.withdrawal_symptoms.errors %}
+                <div class="error">{{ form.withdrawal_symptoms.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="{% if drug %}{% url 'drug_detail' drug.pk %}{% else %}{% url 'drug_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

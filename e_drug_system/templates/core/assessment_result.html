@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Assessment Results - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Assessment Results</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="assessment-result">
+        <div class="result-card">
+            <h2>Your Risk Score: {{ risk_score|floatformat:1 }}/100</h2>
+            
+            <div class="risk-indicator">
+                {% if risk_score < 20 %}
+                <div class="risk-low">
+                    <h3>Low Risk</h3>
+                    <p>Your responses indicate a low risk level. Continue maintaining healthy habits.</p>
+                </div>
+                {% elif risk_score < 40 %}
+                <div class="risk-medium">
+                    <h3>Moderate Risk</h3>
+                    <p>Your responses indicate some concerns. Consider reaching out to support groups or talking to a counselor.</p>
+                </div>
+                {% elif risk_score < 60 %}
+                <div class="risk-high">
+                    <h3>High Risk</h3>
+                    <p>Your responses indicate significant concerns. We strongly recommend seeking professional help.</p>
+                </div>
+                {% else %}
+                <div class="risk-severe">
+                    <h3>Severe Risk</h3>
+                    <p>Your responses indicate severe concerns. Please seek immediate professional assistance.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="sentiment-result">
+                <h3>Overall Sentiment: {{ sentiment }}</h3>
+                <p>Your emotional state appears to be {{ sentiment.lower }} based on your responses.</p>
+            </div>
+
+            <div class="recommendations">
+                <h3>Recommended Actions</h3>
+                <ul>
+                    {% if risk_score >= 20 %}
+                    <li>Consider speaking with a healthcare professional</li>
+                    <li>Join a support group to connect with others</li>
+                    <li>Explore rehabilitation centers in your area</li>
+                    {% endif %}
+                    <li>Continue monitoring your situation</li>
+                    <li>Reach out to trusted friends or family members</li>
+                    {% if sentiment == "Negative" %}
+                    <li>Consider speaking with a mental health counselor</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="result-actions">
+                <a href="{% url 'rehab_centers' %}" class="btn btn-primary">Find Rehabilitation Centers</a>
+                <a href="{% url 'support_groups' %}" class="btn btn-secondary">Join Support Groups</a>
+                <a href="{% url 'chatbot' %}" class="btn btn-secondary">Talk to AI Assistant</a>
+            </div>
+        </div>
+
+        <p class="disclaimer">
+            <strong>Disclaimer:</strong> This assessment is for informational purposes only and is not a medical diagnosis. 
+            Please consult a qualified healthcare professional for proper evaluation and treatment.
+        </p>
+    </div>
+</div>
+{% endblock %}

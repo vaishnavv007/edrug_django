@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="container">
+        <h1>Welcome to E-Drug System</h1>
+        <p>AI-Powered Drug Awareness & Rehabilitation Support</p>
+        <div class="hero-buttons">
+            <a href="{% url 'drug_list' %}" class="btn btn-primary">Explore Drug Information</a>
+            <a href="{% url 'assessment_list' %}" class="btn btn-secondary">Take Assessment</a>
+        </div>
+    </div>
+</div>
+
+<div class="features">
+    <div class="container">
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>Drug Information</h3>
+                <p>Comprehensive information about various drugs, their effects, and risks.</p>
+                <a href="{% url 'drug_list' %}" class="btn">Learn More</a>
+            </div>
+            <div class="feature-card">
+                <h3>Rehabilitation Centers</h3>
+                <p>Find verified rehabilitation centers near you for professional help.</p>
+                <a href="{% url 'rehab_centers' %}" class="btn">Find Centers</a>
+            </div>
+            <div class="feature-card">
+                <h3>Self-Assessment</h3>
+                <p>Take anonymous assessments to evaluate your situation and get AI-powered recommendations.</p>
+                <a href="{% url 'assessment_list' %}" class="btn">Take Assessment</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

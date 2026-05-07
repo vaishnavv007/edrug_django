@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="edit-profile-page">
+    <div class="container">
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>Edit Profile</h1>
+                    <p class="subtitle">Update your personal information</p>
+                </div>
+                <div class="header-icon">
+                    <span class="icon">👤</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="edit-profile-card">
+            <form method="post" enctype="multipart/form-data" class="profile-form">
+                {% csrf_token %}
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                            <span class="label-icon">👤</span>
+                            First Name
+                        </label>
+                        {{ form.first_name }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                            <span class="label-icon">👤</span>
+                            Last Name
+                        </label>
+                        {{ form.last_name }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            <span class="label-icon">📧</span>
+                            Email Address
+                        </label>
+                        {{ form.email }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}" class="form-label">
+                            <span class="label-icon">📱</span>
+                            Phone
+                        </label>
+                        {{ form.phone }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">
+                            <span class="label-icon">🎂</span>
+                            Date of Birth
+                        </label>
+                        {{ form.date_of_birth }}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="{{ form.bio.id_for_label }}" class="form-label">
+                            <span class="label-icon">📝</span>
+                            Bio
+                        </label>
+                        {{ form.bio }}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="{{ form.profile_picture.id_for_label }}" class="form-label">
+                            <span class="label-icon">🖼️</span>
+                            Profile Picture
+                        </label>
+                        {{ form.profile_picture }}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-save">
+                        <span class="icon">💾</span> Save Changes
+                    </button>
+                    <a href="{% url 'profile' %}" class="btn btn-secondary btn-cancel">
+                        <span class="icon">✕</span> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

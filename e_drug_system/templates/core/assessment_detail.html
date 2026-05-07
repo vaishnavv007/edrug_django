@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ assessment.title }} - E-Drug System{% endblock %}
+
+{% block extra_css %}
+<style>
+.assessment-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.question-category {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.question-category h2 {
+    color: #007bff;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.question-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.question-text {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.scale-input label {
+    display: block;
+    margin: 8px 0;
+    cursor: pointer;
+}
+
+.scale-input input[type="radio"] {
+    margin-right: 8px;
+}
+
+textarea, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+textarea:focus, select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+}
+
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+}
+
+#loading {
+    text-align: center;
+    padding: 40px;
+    background: white;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+#loading p {
+    font-size: 18px;
+    color: #007bff;
+}
+
+#results {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    margin-top: 20px;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#results h2 {
+    color: #007bff;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.result-section {
+    margin-top: 20px;
+}
+
+.result-section h3 {
+    color: #333;
+    margin: 20px 0 10px 0;
+    font-size: 1.2rem;
+}
+
+.result-section h3 span {
+    color: #007bff;
+    font-weight: 700;
+}
+
+.result-section p {
+    line-height: 1.6;
+    color: #555;
+    margin: 10px 0;
+}
+
+#severityLevel {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+#severityLevel:contains("Low") {
+    background: #d4edda;
+    color: #155724;
+}
+
+#severityLevel:contains("Moderate") {
+    background: #fff3cd;
+    color: #856404;
+}
+
+#severityLevel:contains("High") {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+#severityLevel:contains("Critical") {
+    background: #f5c6cb;
+    color: #721c24;
+    font-weight: bold;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>{{ assessment.title }}</h1>
+        <p>{{ assessment.description }}</p>
+        <a href="{% url 'assessment_list' %}" class="btn btn-secondary">Back to Assessments</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="assessment-form">
+        <form id="assessmentForm">
+            {% csrf_token %}
+            
+            {% if grouped_questions.severity %}
+            <div class="question-category">
+                <h2>Addiction Severity</h2>
+                {% for question in grouped_questions.severity %}
+                <div class="question-item" data-question-id="{{ question.id }}" data-input-type="{{ question.input_type }}">
+                    <p class="question-text">{{ question.text }}</p>
+                    {% if question.input_type == 'scale' %}
+                    <div class="scale-input">
+                        <label><input type="radio" name="q{{ question.id }}" value="1" required> 1 - Strongly Disagree</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="2"> 2 - Disagree</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="3"> 3 - Neutral</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="4"> 4 - Agree</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="5"> 5 - Strongly Agree</label>
+                    </div>
+                    {% elif question.input_type == 'text' %}
+                    <textarea name="q{{ question.id }}" rows="3" required></textarea>
+                    {% elif question.input_type == 'choice' %}
+                    <select name="q{{ question.id }}" required>
+                        <option value="">Select an option...</option>
+                        <option value="never">Never</option>
+                        <option value="rarely">Rarely</option>
+                        <option value="sometimes">Sometimes</option>
+                        <option value="often">Often</option>
+                        <option value="always">Always</option>
+                    </select>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if grouped_questions.readiness %}
+            <div class="question-category">
+                <h2>Readiness to Change</h2>
+                {% for question in grouped_questions.readiness %}
+                <div class="question-item" data-question-id="{{ question.id }}" data-input-type="{{ question.input_type }}">
+                    <p class="question-text">{{ question.text }}</p>
+                    {% if question.input_type == 'scale' %}
+                    <div class="scale-input">
+                        <label><input type="radio" name="q{{ question.id }}" value="1" required> 1 - Strongly Disagree</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="2"> 2 - Disagree</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="3"> 3 - Neutral</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="4"> 4 - Agree</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="5"> 5 - Strongly Agree</label>
+                    </div>
+                    {% elif question.input_type == 'text' %}
+                    <textarea name="q{{ question.id }}" rows="3" required></textarea>
+                    {% elif question.input_type == 'choice' %}
+                    <select name="q{{ question.id }}" required>
+                        <option value="">Select an option...</option>
+                        <option value="never">Never</option>
+                        <option value="rarely">Rarely</option>
+                        <option value="sometimes">Sometimes</option>
+                        <option value="often">Often</option>
+                        <option value="always">Always</option>
+                    </select>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if grouped_questions.mental_state %}
+            <div class="question-category">
+                <h2>Mental & Physical State</h2>
+                {% for question in grouped_questions.mental_state %}
+                <div class="question-item" data-question-id="{{ question.id }}" data-input-type="{{ question.input_type }}">
+                    <p class="question-text">{{ question.text }}</p>
+                    {% if question.input_type == 'scale' %}
+                    <div class="scale-input">
+                        <label><input type="radio" name="q{{ question.id }}" value="1" required> 1 - Strongly Disagree</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="2"> 2 - Disagree</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="3"> 3 - Neutral</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="4"> 4 - Agree</label><br>
+                        <label><input type="radio" name="q{{ question.id }}" value="5"> 5 - Strongly Agree</label>
+                    </div>
+                    {% elif question.input_type == 'text' %}
+                    <textarea name="q{{ question.id }}" rows="3" required></textarea>
+                    {% elif question.input_type == 'choice' %}
+                    <select name="q{{ question.id }}" required>
+                        <option value="">Select an option...</option>
+                        <option value="never">Never</option>
+                        <option value="rarely">Rarely</option>
+                        <option value="sometimes">Sometimes</option>
+                        <option value="often">Often</option>
+                        <option value="always">Always</option>
+                    </select>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="submitBtn">Submit Assessment</button>
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+            </div>
+        </form>
+
+        <div id="loading" style="display: none;">
+            <p>Analyzing your responses with AI... This may take a moment.</p>
+        </div>
+
+        <div id="results" style="display: none;">
+            <h2>Assessment Results</h2>
+            <div class="result-section">
+                <h3>Severity Level: <span id="severityLevel"></span></h3>
+                <h3>Readiness to Change: <span id="readinessLevel"></span></h3>
+                <h3>Mental State Summary</h3>
+                <p id="mentalStateSummary"></p>
+                <h3>Recommendations</h3>
+                <p id="recommendations"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('assessmentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const responses = {};
+    
+    formData.forEach((value, key) => {
+        if (key.startsWith('q')) {
+            responses[key] = value;
+        }
+    });
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    
+    submitBtn.disabled = true;
+    loading.style.display = 'block';
+    results.style.display = 'none';
+    
+    fetch("{% url 'assessment_submit' assessment.id %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(responses)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const severityEl = document.getElementById('severityLevel');
+            severityEl.textContent = data.severity_level;
+            
+            // Add color class based on severity
+            severityEl.className = '';
+            if (data.severity_level === 'Low') {
+                severityEl.style.background = '#d4edda';
+                severityEl.style.color = '#155724';
+            } else if (data.severity_level === 'Moderate') {
+                severityEl.style.background = '#fff3cd';
+                severityEl.style.color = '#856404';
+            } else if (data.severity_level === 'High') {
+                severityEl.style.background = '#f8d7da';
+                severityEl.style.color = '#721c24';
+            } else if (data.severity_level === 'Critical') {
+                severityEl.style.background = '#f5c6cb';
+                severityEl.style.color = '#721c24';
+                severityEl.style.fontWeight = 'bold';
+            }
+            
+            document.getElementById('readinessLevel').textContent = data.readiness_level;
+            document.getElementById('mentalStateSummary').textContent = data.mental_state_summary;
+            document.getElementById('recommendations').textContent = data.recommendations;
+            
+            loading.style.display = 'none';
+            results.style.display = 'block';
+            this.style.display = 'none';
+        } else {
+            alert('Error: ' + data.error);
+            submitBtn.disabled = false;
+            loading.style.display = 'none';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        submitBtn.disabled = false;
+        loading.style.display = 'none';
+    });
+});
+</script>
+{% endblock %}

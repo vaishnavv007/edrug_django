@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ group.name }} - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>{{ group.name }}</h1>
+        {% if group.is_online %}
+        <span class="badge badge-info">Online Group</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+    <div class="group-detail">
+        <section class="group-section">
+            <h2>About This Group</h2>
+            <p>{{ group.description }}</p>
+        </section>
+
+        <section class="group-section">
+            <h2>Meeting Schedule</h2>
+            <p>{{ group.meeting_schedule }}</p>
+        </section>
+
+        <section class="group-section">
+            <h2>Location</h2>
+            <p>{{ group.location }}</p>
+            {% if group.is_online and group.meeting_link %}
+            <p><strong>Meeting Link:</strong> <a href="{{ group.meeting_link }}" target="_blank">Join Online</a></p>
+            {% endif %}
+        </section>
+
+        <section class="group-section">
+            <h2>Contact Information</h2>
+            <p>{{ group.contact_info }}</p>
+        </section>
+
+        <a href="{% url 'support_groups' %}" class="btn btn-secondary">Back to Groups</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>{{ action }}</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="post-form-container">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">Center Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="error">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.address.id_for_label }}">Address</label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                <div class="error">{{ form.address.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.phone.id_for_label }}">Phone</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                <div class="error">{{ form.phone.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <div class="error">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.website.id_for_label }}">Website</label>
+                {{ form.website }}
+                {% if form.website.errors %}
+                <div class="error">{{ form.website.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <div class="error">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.services_offered.id_for_label }}">Services Offered</label>
+                {{ form.services_offered }}
+                {% if form.services_offered.errors %}
+                <div class="error">{{ form.services_offered.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.location_lat.id_for_label }}">Latitude</label>
+                {{ form.location_lat }}
+                {% if form.location_lat.errors %}
+                <div class="error">{{ form.location_lat.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.location_lng.id_for_label }}">Longitude</label>
+                {{ form.location_lng }}
+                {% if form.location_lng.errors %}
+                <div class="error">{{ form.location_lng.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="{% if center %}{% url 'rehab_center_detail' center.pk %}{% else %}{% url 'rehab_centers' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

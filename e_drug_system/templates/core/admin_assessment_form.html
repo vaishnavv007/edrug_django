@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} - Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+.admin-assessment-form {
+    padding: 20px 0;
+}
+.form-container {
+    max-width: 700px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.form-header {
+    margin-bottom: 30px;
+}
+.form-header h1 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+.form-header p {
+    margin: 0;
+    color: #666;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+.btn-submit {
+    background: #667eea;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+.btn-submit:hover {
+    background: #5568d3;
+}
+.btn-cancel {
+    background: #e0e0e0;
+    color: #333;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    margin-top: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background 0.3s ease;
+}
+.btn-cancel:hover {
+    background: #d0d0d0;
+}
+.error-message {
+    background: #ff6b6b;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+.help-text {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #999;
+}
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <h1>{{ action }}</h1>
+        <p>{% if action == 'Create Assessment' %}Create a new assessment template{% else %}Edit assessment template{% endif %}</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="admin-assessment-form">
+        <div class="form-container">
+            <div class="form-header">
+                <h1>{{ action }}</h1>
+                <p>{% if action == 'Create Assessment' %}Fill in the details below to create a new assessment template{% else %}Update the assessment template details{% endif %}</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="error-message">
+                <strong>Error:</strong> Please correct the errors below.
+                {% for field, errors in form.errors.items %}
+                <br>{{ field }}: {{ errors|join:", " }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">Title *</label>
+                    <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" value="{% if form.title.value %}{{ form.title.value }}{% endif %}" required>
+                    <div class="help-text">Required. Enter a descriptive title for the assessment.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Description *</label>
+                    <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" required>{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+                    <div class="help-text">Required. Provide a detailed description of what this assessment measures.</div>
+                </div>
+
+                <button type="submit" class="btn-submit">{{ action }}</button>
+                <a href="{% url 'admin_assessment_list' %}" class="btn-cancel">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

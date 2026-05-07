@@ -1,0 +1,787 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ center.name }} - E-Drug System{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Rehabilitation Center Detail Page Styles */
+.center-detail-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    min-height: 100vh;
+    position: relative;
+}
+
+.center-detail-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(23, 162, 184, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(40, 167, 69, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(102, 126, 234, 0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.page-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    padding: 60px 40px;
+    border-radius: 20px;
+    margin-bottom: 50px;
+    box-shadow: 0 15px 35px rgba(23, 162, 184, 0.3);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    transform: translateY(0);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.page-header:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(23, 162, 184, 0.4);
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="medical" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M25 5 L25 45 L5 25 Z" fill="rgba(255,255,255,0.05)"/><path d="M45 5 L45 45 L25 25 Z" fill="rgba(255,255,255,0.05)"/><circle cx="25" cy="25" r="3" fill="rgba(255,255,255,0.08)"/><circle cx="75" cy="75" r="3" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="100" height="100" fill="url(%23medical)"/></svg>');
+    opacity: 0.3;
+    animation: floatPattern 20s linear infinite;
+}
+
+@keyframes floatPattern {
+    0% { transform: translateX(0) translateY(0); }
+    25% { transform: translateX(-10px) translateY(5px); }
+    50% { transform: translateX(5px) translateY(-10px); }
+    75% { transform: translateX(-5px) translateY(10px); }
+    100% { transform: translateX(0) translateY(0); }
+}
+
+.page-header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate 30s linear infinite;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.page-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    animation: titleGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+    0% { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+    100% { text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3); }
+}
+
+.page-header h1::before {
+    content: '🏥';
+    font-size: 2.5rem;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    animation: pulse 2s infinite, glow 3s ease-in-out infinite alternate;
+    overflow: hidden;
+}
+
+.verified-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
+    100% { box-shadow: 0 4px 25px rgba(40, 167, 69, 0.5); }
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.verified-badge::after {
+    content: '✓';
+    font-size: 1.2rem;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+.center-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.center-section {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    padding: 35px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transform: translateY(0);
+}
+
+.center-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #17a2b8, #138496, #17a2b8);
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+}
+
+.center-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.center-section:hover::after {
+    opacity: 1;
+}
+
+.center-section:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(23, 162, 184, 0.25);
+    border-color: rgba(23, 162, 184, 0.3);
+}
+
+.center-section.contact-section::before {
+    background: linear-gradient(90deg, #28a745, #20c997, #28a745);
+}
+
+.center-section.contact-section:hover {
+    box-shadow: 0 20px 40px rgba(40, 167, 69, 0.25);
+    border-color: rgba(40, 167, 69, 0.3);
+}
+
+.center-section.about-section::before {
+    background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+}
+
+.center-section.about-section:hover {
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.center-section.services-section::before {
+    background: linear-gradient(90deg, #ffc107, #e0a800, #ffc107);
+}
+
+.center-section.services-section:hover {
+    box-shadow: 0 20px 40px rgba(255, 193, 7, 0.25);
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.center-section h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.center-section:hover h2 {
+    transform: translateX(5px);
+}
+
+.center-section h2::before {
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.center-section:hover h2::before {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.center-section.contact-section h2::before {
+    content: '📞';
+}
+
+.center-section.about-section h2::before {
+    content: 'ℹ️';
+}
+
+.center-section.services-section h2::before {
+    content: '🏥';
+}
+
+.contact-info {
+    display: grid;
+    gap: 20px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    border-left: 4px solid #17a2b8;
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(23, 162, 184, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.contact-item:hover::before {
+    left: 100%;
+}
+
+.contact-item:hover {
+    background: rgba(23, 162, 184, 0.1);
+    transform: translateX(15px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(23, 162, 184, 0.2);
+}
+
+.contact-icon {
+    font-size: 1.5rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.contact-item:hover .contact-icon::before {
+    opacity: 1;
+}
+
+.contact-item:hover .contact-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 20px rgba(23, 162, 184, 0.3);
+}
+
+.contact-details {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.contact-details strong {
+    display: block;
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.contact-item:hover .contact-details strong {
+    color: #17a2b8;
+    transform: translateX(3px);
+}
+
+.contact-details p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.contact-item:hover .contact-details p {
+    color: #138496;
+    transform: translateX(3px);
+}
+
+.contact-details a {
+    color: #17a2b8;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.contact-details a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #17a2b8;
+    transition: width 0.3s ease;
+}
+
+.contact-details a:hover {
+    color: #138496;
+}
+
+.contact-details a:hover::after {
+    width: 100%;
+}
+
+.about-content,
+.services-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #495057;
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+    font-style: italic;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.about-content {
+    border-left: 4px solid #667eea;
+}
+
+.services-content {
+    border-left: 4px solid #ffc107;
+}
+
+.about-content::before,
+.services-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.03) 50%, transparent 52%);
+    background-size: 20px 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.about-content:hover,
+.services-content:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.about-content:hover::before,
+.services-content:hover::before {
+    opacity: 1;
+}
+
+.back-button {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    align-self: flex-start;
+    position: relative;
+    overflow: hidden;
+}
+
+.back-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.back-button:hover::before {
+    left: 100%;
+}
+
+.back-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(108, 117, 125, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.back-button span {
+    transition: all 0.3s ease;
+}
+
+.back-button:hover span {
+    transform: translateX(-5px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .center-detail-container {
+        padding: 20px 15px;
+    }
+    
+    .page-header {
+        padding: 40px 25px;
+        margin-bottom: 30px;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .page-header h1::before {
+        font-size: 2rem;
+    }
+    
+    .verified-badge {
+        font-size: 0.9rem;
+        padding: 10px 16px;
+    }
+    
+    .center-section {
+        padding: 25px;
+    }
+    
+    .center-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .contact-item {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .contact-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .about-content,
+    .services-content {
+        padding: 20px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .center-section {
+        padding: 20px;
+    }
+    
+    .center-section h2 {
+        font-size: 1.3rem;
+    }
+    
+    .about-content,
+    .services-content {
+        padding: 15px;
+        font-size: 0.95rem;
+    }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="center-detail-container">
+    <!-- Enhanced Page Header -->
+    <div class="page-header">
+        <h1>{{ center.name }}</h1>
+        {% if center.verified %}
+            <div class="verified-badge">Verified Center</div>
+        {% endif %}
+    </div>
+
+    <!-- Enhanced Center Detail Sections -->
+    <div class="center-detail">
+        <!-- Contact Information Section -->
+        <section class="center-section contact-section">
+            <h2>Contact Information</h2>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">📍</div>
+                    <div class="contact-details">
+                        <strong>Address</strong>
+                        <p>{{ center.address }}</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">📞</div>
+                    <div class="contact-details">
+                        <strong>Phone</strong>
+                        <p>{{ center.phone }}</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">📧</div>
+                    <div class="contact-details">
+                        <strong>Email</strong>
+                        <p>{{ center.email }}</p>
+                    </div>
+                </div>
+                {% if center.website %}
+                <div class="contact-item">
+                    <div class="contact-icon">🌐</div>
+                    <div class="contact-details">
+                        <strong>Website</strong>
+                        <p><a href="{{ center.website }}" target="_blank">{{ center.website }}</a></p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="center-section about-section">
+            <h2>About</h2>
+            <p class="about-content">{{ center.description }}</p>
+        </section>
+
+        <!-- Services Offered Section -->
+        <section class="center-section services-section">
+            <h2>Services Offered</h2>
+            <p class="services-content">{{ center.services_offered }}</p>
+        </section>
+
+        <!-- Enhanced Back Button -->
+        <a href="{% url 'rehab_centers' %}" class="back-button">
+            <span>⬅️</span>
+            Back to Centers
+        </a>
+    </div>
+</div>
+
+<script>
+// Mouse tracking for interactive effects
+document.querySelectorAll('.center-section').forEach(section => {
+    section.addEventListener('mousemove', function(e) {
+        const rect = this.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        
+        this.style.setProperty('--mouse-x', `${x}%`);
+        this.style.setProperty('--mouse-y', `${y}%`);
+    });
+});
+
+// Add ripple effect to contact items
+document.querySelectorAll('.contact-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        const ripple = document.createElement('div');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            left: ${x}px;
+            top: ${y}px;
+            background: radial-gradient(circle, rgba(23, 162, 184, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+            pointer-events: none;
+        `;
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+    });
+});
+
+// Add CSS for ripple animation
+const rippleStyle = document.createElement('style');
+rippleStyle.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(rippleStyle);
+
+// Enhanced scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+            setTimeout(() => {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }, index * 100);
+        }
+    });
+}, observerOptions);
+
+// Observe all sections for scroll animations
+document.querySelectorAll('.center-section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(30px)';
+    section.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+    observer.observe(section);
+});
+
+// Add typing effect to the title
+const title = document.querySelector('.page-header h1');
+if (title) {
+    const originalText = title.textContent;
+    title.textContent = '';
+    let index = 0;
+    
+    function typeWriter() {
+        if (index < originalText.length) {
+            title.textContent += originalText.charAt(index);
+            index++;
+            setTimeout(typeWriter, 50);
+        }
+    }
+    
+    setTimeout(typeWriter, 500);
+}
+
+// Add floating animation to contact icons
+document.querySelectorAll('.contact-icon').forEach((icon, index) => {
+    icon.style.animation = `float ${3 + index * 0.5}s ease-in-out infinite`;
+});
+
+// Add CSS for floating animation
+const floatStyle = document.createElement('style');
+floatStyle.textContent = `
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-5px); }
+    }
+`;
+document.head.appendChild(floatStyle);
+
+// Add parallax effect to page header
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const header = document.querySelector('.page-header');
+    if (header) {
+        header.style.transform = `translateY(${scrolled * 0.3}px)`;
+    }
+});
+</script>
+{% endblock %}

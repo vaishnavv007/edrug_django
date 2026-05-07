@@ -1,0 +1,585 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ paper.title }} - Research Paper{% endblock %}
+
+{% block content %}
+<style>
+/* Research Paper Detail Styles */
+.paper-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    min-height: 100vh;
+}
+
+.paper-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 20px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.paper-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.paper-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+    position: relative;
+    z-index: 1;
+}
+
+.paper-meta {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.paper-actions {
+    position: relative;
+    z-index: 1;
+}
+
+.paper-actions .btn {
+    margin-left: 10px;
+    border-radius: 25px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.paper-actions .btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    color: white;
+    text-decoration: none;
+}
+
+.content-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 40px;
+    align-items: start;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.content-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.content-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 25px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.content-card-body {
+    padding: 30px;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #2c3e50;
+}
+
+.abstract-text {
+    font-style: italic;
+    color: #495057;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    margin: 0;
+}
+
+.full-content {
+    white-space: pre-wrap;
+    font-family: 'Georgia', serif;
+    line-height: 1.8;
+    color: #2c3e50;
+}
+
+.keywords-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.keyword-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.keyword-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    position: sticky;
+    top: 20px;
+}
+
+.sidebar-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.sidebar-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.sidebar-card-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-card-body {
+    padding: 25px;
+}
+
+.info-item {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    color: #2c3e50;
+    line-height: 1.6;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-verified {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.status-not-verified {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+}
+
+.download-section {
+    text-align: center;
+    padding: 30px;
+}
+
+.download-btn {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.download-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.share-buttons {
+    display: grid;
+    gap: 12px;
+}
+
+.share-btn {
+    border-radius: 20px;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid #e9ecef;
+    background: white;
+    color: #495057;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: #495057;
+    text-decoration: none;
+}
+
+.share-btn.primary {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    border-color: #17a2b8;
+}
+
+.share-btn.primary:hover {
+    color: white;
+    text-decoration: none;
+}
+
+/* Mobile Responsive */
+@media (max-width: 992px) {
+    .content-layout {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .sidebar {
+        position: static;
+        order: -1;
+    }
+    
+    .paper-title {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .paper-container {
+        padding: 20px 15px;
+    }
+    
+    .paper-header {
+        padding: 25px;
+    }
+    
+    .paper-title {
+        font-size: 1.5rem;
+    }
+    
+    .paper-meta {
+        font-size: 1rem;
+    }
+    
+    .content-card-body {
+        padding: 20px;
+        font-size: 1rem;
+    }
+    
+    .sidebar-card-body {
+        padding: 20px;
+    }
+}
+</style>
+
+<div class="paper-container">
+    <!-- Paper Header -->
+    <div class="paper-header">
+        <h1 class="paper-title">{{ paper.title }}</h1>
+        <div class="paper-meta">
+            By {{ paper.authors }} 
+            {% if paper.published_by %}
+                • Published by {{ paper.published_by.username }}
+            {% endif %}
+            • {{ paper.created_at|date:"M d, Y" }}
+        </div>
+        <div class="paper-actions">
+            {% if paper.pdf_file %}
+                <a href="{{ paper.pdf_file.url }}" class="btn" target="_blank">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
+            {% endif %}
+            {% if user.is_expert and paper.published_by == user %}
+                <a href="{% url 'edit_research_paper' paper.pk %}" class="btn">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Content Layout -->
+    <div class="content-layout">
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Abstract Section -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <i class="fas fa-file-alt"></i>
+                    Abstract
+                </div>
+                <div class="content-card-body">
+                    <p class="abstract-text">{{ paper.abstract|linebreaks }}</p>
+                </div>
+            </div>
+
+            <!-- Full Content Section -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <i class="fas fa-book-open"></i>
+                    Full Content
+                </div>
+                <div class="content-card-body">
+                    <div class="full-content">{{ paper.content|linebreaks }}</div>
+                </div>
+            </div>
+
+            <!-- Keywords Section -->
+            {% if paper.keywords %}
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <i class="fas fa-tags"></i>
+                        Keywords
+                    </div>
+                    <div class="content-card-body">
+                        <div class="keywords-container">
+                            {% for keyword in paper.keyword_list %}
+                                <span class="keyword-badge">{{ keyword }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Paper Information -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-header">
+                    <i class="fas fa-info-circle"></i>
+                    Paper Information
+                </div>
+                <div class="sidebar-card-body">
+                    <div class="info-item">
+                        <div class="info-label">Authors</div>
+                        <div class="info-value">{{ paper.authors|linebreaks }}</div>
+                    </div>
+                    
+                    {% if paper.journal %}
+                        <div class="info-item">
+                            <div class="info-label">Journal</div>
+                            <div class="info-value">{{ paper.journal }}</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if paper.publication_date %}
+                        <div class="info-item">
+                            <div class="info-label">Publication Date</div>
+                            <div class="info-value">{{ paper.publication_date|date:"F d, Y" }}</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if paper.doi %}
+                        <div class="info-item">
+                            <div class="info-label">DOI</div>
+                            <div class="info-value">
+                                <a href="{{ paper.doi }}" target="_blank" style="color: #667eea; text-decoration: none;">{{ paper.doi }}</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="info-item">
+                        <div class="info-label">Published by</div>
+                        <div class="info-value">{{ paper.published_by.username }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Created</div>
+                        <div class="info-value">{{ paper.created_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                    
+                    {% if paper.updated_at != paper.created_at %}
+                        <div class="info-item">
+                            <div class="info-label">Last Updated</div>
+                            <div class="info-value">{{ paper.updated_at|date:"M d, Y H:i" }}</div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="info-item">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">
+                            {% if paper.is_verified %}
+                                <span class="status-badge status-verified">Verified</span>
+                            {% else %}
+                                <span class="status-badge status-not-verified">Not Verified</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Section -->
+            {% if paper.pdf_file %}
+                <div class="sidebar-card">
+                    <div class="sidebar-card-header">
+                        <i class="fas fa-download"></i>
+                        Download
+                    </div>
+                    <div class="download-section">
+                        <a href="{{ paper.pdf_file.url }}" class="download-btn" target="_blank">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Share Section -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-header">
+                    <i class="fas fa-share-alt"></i>
+                    Share Paper
+                </div>
+                <div class="sidebar-card-body">
+                    <div class="share-buttons">
+                        <button class="share-btn" onclick="copyToClipboard()">
+                            <i class="fas fa-link"></i> Copy Link
+                        </button>
+                        <button class="share-btn primary" onclick="sharePaper()">
+                            <i class="fas fa-share"></i> Share Paper
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(function() {
+        // Create a temporary notification instead of alert
+        const notification = document.createElement('div');
+        notification.textContent = 'Link copied to clipboard!';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
+            z-index: 1000;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    });
+}
+
+function sharePaper() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ paper.title }}',
+            text: '{{ paper.abstract|truncatewords:20 }}',
+            url: window.location.href
+        });
+    } else {
+        copyToClipboard();
+    }
+}
+
+// Add CSS animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

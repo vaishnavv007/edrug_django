@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+
+{% block title %}My Rehabilitation Plan{% endblock %}
+
+{% block content %}
+<style>
+.rehab-plan-view {
+    padding: 20px 0;
+}
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+}
+.page-header h1 {
+    margin: 0;
+    font-size: 36px;
+}
+.page-header p {
+    margin: 10px 0 0 0;
+    opacity: 0.9;
+}
+.content-container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+}
+.plan-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+.sidebar {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+.section-header {
+    margin-bottom: 25px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+.section-header h2 {
+    margin: 0;
+    color: #333;
+}
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.stat-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+.stat-card .label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+}
+.stat-card .value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #667eea;
+}
+.risk-bar {
+    background: #e0e0e0;
+    border-radius: 10px;
+    height: 20px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+.risk-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+.info-item {
+    margin-bottom: 15px;
+}
+.info-item label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+.info-item .value {
+    color: #666;
+}
+.activities-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.activity-badge {
+    background: #667eea;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+.ai-analysis {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+.ai-analysis h4 {
+    margin: 0 0 10px 0;
+    color: #667eea;
+}
+.ai-analysis p {
+    margin: 0;
+    color: #666;
+    line-height: 1.6;
+}
+.progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.progress-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+}
+.progress-item .date {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+.progress-item .mood {
+    color: #666;
+    font-size: 14px;
+}
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: block;
+    margin-bottom: 10px;
+}
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+.btn-primary:hover {
+    background: #5568d3;
+}
+.no-progress {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+    font-style: italic;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const riskFillBar = document.getElementById('risk-fill-bar');
+    if (riskFillBar) {
+        const riskLevel = parseInt(riskFillBar.getAttribute('data-risk-level'));
+        riskFillBar.style.width = riskLevel + '%';
+        
+        if (riskLevel < 30) {
+            riskFillBar.style.background = 'linear-gradient(90deg, #1dd1a1, #10ac84)';
+        } else if (riskLevel < 70) {
+            riskFillBar.style.background = 'linear-gradient(90deg, #feca57, #f0b447)';
+        } else {
+            riskFillBar.style.background = 'linear-gradient(90deg, #ff6b6b, #ee5a5a)';
+        }
+    }
+});
+</script>
+
+<div class="page-header">
+    <div class="container">
+        <h1>My Rehabilitation Plan</h1>
+        <p>Track your recovery journey</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="rehab-plan-view">
+        <div class="content-container">
+            <!-- Main Content -->
+            <div>
+                <div class="plan-section">
+                    <div class="section-header">
+                        <h2>🎯 Your Goals</h2>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Primary Goal</label>
+                        <div class="value">{{ plan.get_primary_goal_display }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Short-term Goal (7 days)</label>
+                        <div class="value">{{ plan.short_term_goal }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Long-term Goal (30-60 days)</label>
+                        <div class="value">{{ plan.long_term_goal }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Hours per Day</label>
+                        <div class="value">{{ plan.hours_per_day }} hours</div>
+                    </div>
+                </div>
+
+                <div class="plan-section">
+                    <div class="section-header">
+                        <h2>📅 Activities</h2>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Activities</label>
+                        <div class="activities-list">
+                            {% for activity in plan.activities %}
+                            <span class="activity-badge">{{ activity }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Frequency</label>
+                        <div class="value">{{ plan.get_activity_frequency_display }}</div>
+                    </div>
+                </div>
+
+                <div class="plan-section">
+                    <div class="section-header">
+                        <h2>⚠️ Risk Situations</h2>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Triggers</label>
+                        <div class="value">
+                            {% if plan.risk_situations %}
+                            {{ plan.risk_situations }}
+                            {% else %}
+                            No specific triggers identified
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plan-section">
+                    <div class="section-header">
+                        <h2>📊 AI Analysis</h2>
+                    </div>
+                    
+                    {% if plan.ai_analysis %}
+                    <div class="ai-analysis">
+                        <p>{{ plan.ai_analysis }}</p>
+                    </div>
+                    {% else %}
+                    <p style="color: #999;">No AI analysis available yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="section-header">
+                    <h2>Risk Level</h2>
+                </div>
+                
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="label">Current Risk</div>
+                        <div class="value">{{ plan.risk_level }}%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Days Active</div>
+                        <div class="value">{{ daily_progress.count }}</div>
+                    </div>
+                </div>
+
+                <div class="risk-bar">
+                    <div class="risk-fill" id="risk-fill-bar" data-risk-level="{{ plan.risk_level }}"></div>
+                </div>
+
+                <a href="{% url 'submit_daily_progress' plan.id %}" class="btn btn-primary">Submit Daily Progress</a>
+
+                <div class="section-header" style="margin-top: 30px;">
+                    <h2>Recent Progress</h2>
+                </div>
+
+                {% if daily_progress %}
+                <div class="progress-list">
+                    {% for progress in daily_progress|slice:":5" %}
+                    <div class="progress-item">
+                        <div class="date">{{ progress.date|date:"M d, Y" }}</div>
+                        <div class="mood">Mood: {{ progress.mood_rating }}/5 | Confidence: {{ progress.confidence_rating }}/5</div>
+                        {% if progress.self_harm_detected %}
+                        <div style="color: #ff6b6b; font-weight: 600; margin-top: 5px;">⚠️ Flagged for review</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="no-progress">No progress recorded yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

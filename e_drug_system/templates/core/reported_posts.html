@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Reported Posts - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Reported Posts</h1>
+        <p>Review and moderate reported content</p>
+        <a href="{% url 'moderator_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="reported-posts">
+        {% if reports %}
+        <div class="reports-list">
+            {% for report in reports %}
+            <div class="report-item {% if report.reviewed %}reviewed{% endif %}">
+                <div class="report-header">
+                    <h3>{{ report.post.title }}</h3>
+                    <span class="badge badge-warning">{{ report.get_reason_display }}</span>
+                    {% if report.reviewed %}
+                    <span class="badge badge-success">Reviewed</span>
+                    {% endif %}
+                </div>
+                <p class="report-details">
+                    <strong>Reported by:</strong> {{ report.user.username }}<br>
+                    <strong>Post author:</strong> {{ report.post.user.username }}<br>
+                    <strong>Date:</strong> {{ report.created_at|date:"F d, Y g:i A" }}
+                </p>
+                {% if report.description %}
+                <p class="report-description"><strong>Description:</strong> {{ report.description }}</p>
+                {% endif %}
+                <div class="post-preview">
+                    <p>{{ report.post.content|truncatewords:30 }}</p>
+                </div>
+                <div class="report-actions">
+                    <a href="{% url 'post_detail' report.post.id %}" class="btn btn-secondary">View Post</a>
+                    {% if not report.reviewed %}
+                    <a href="{% url 'mark_post_fake' report.post.id %}" class="btn btn-warning">Mark as Fake</a>
+                    <a href="{% url 'moderator_delete_post' report.post.id %}" class="btn btn-danger">Delete Post</a>
+                    <a href="{% url 'dismiss_report' report.id %}" class="btn btn-secondary">Dismiss Report</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No reports found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

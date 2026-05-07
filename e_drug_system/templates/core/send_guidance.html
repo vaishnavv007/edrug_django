@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Send Guidance - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Send Guidance</h1>
+        <p>Send professional guidance to {{ target_user.username }}</p>
+        <a href="{% url 'high_risk_users' %}" class="btn btn-secondary">Back to High-Risk Users</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="guidance-form-container">
+        <div class="user-info">
+            <p><strong>Recipient:</strong> {{ target_user.username }}</p>
+            <p><strong>Email:</strong> {{ target_user.email }}</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.content.id_for_label }}">Guidance Message</label>
+                {{ form.content }}
+                {% if form.content.errors %}
+                <div class="error">{{ form.content.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Send Guidance</button>
+                <a href="{% url 'high_risk_users' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

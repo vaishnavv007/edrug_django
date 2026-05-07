@@ -1,0 +1,739 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ group.name }} - Group Chat{% endblock %}
+
+{% block content %}
+<style>
+/* Group Chat Styles */
+.group-chat-container {
+    display: flex;
+    height: calc(100vh - 80px);
+    background: #f8f9fa;
+    overflow: hidden;
+}
+
+/* Group Sidebar */
+.group-sidebar {
+    width: 320px;
+    background: white;
+    border-right: 1px solid #e9ecef;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.group-sidebar-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.group-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.group-sidebar-content h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.group-sidebar-content .small {
+    line-height: 1.6;
+}
+
+.group-sidebar-content .btn {
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.group-sidebar-content .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Member List Styling */
+.group-sidebar-content .d-flex.align-items-center {
+    padding: 10px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.group-sidebar-content .d-flex.align-items-center:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateX(5px);
+}
+
+.group-sidebar-content .badge {
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+/* Group Chat Area */
+.group-chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.group-chat-header {
+    padding: 20px;
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.group-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.group-chat-input {
+    padding: 20px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-top: 1px solid #e9ecef;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+}
+
+.group-chat-input .form-control {
+    border-radius: 25px;
+    border: 2px solid #e9ecef;
+    padding: 12px 20px;
+    font-size: 14px;
+    resize: none;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.group-chat-input .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    background: white;
+}
+
+.group-chat-input .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.group-chat-input .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.group-chat-input .input-group {
+    align-items: flex-end;
+    width: 100%;
+    display: flex;
+    gap: 10px;
+}
+
+.group-chat-input .form-control {
+    border-radius: 25px;
+    border: 2px solid #e9ecef;
+    padding: 12px 20px;
+    font-size: 14px;
+    resize: none;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Message Bubbles */
+.group-message {
+    display: flex;
+    gap: 12px;
+    max-width: 70%;
+    animation: messageSlide 0.3s ease;
+}
+
+.group-message.sent {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+.group-message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.group-message-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.group-message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #666;
+}
+
+.group-message.sent .group-message-header {
+    justify-content: flex-end;
+}
+
+.group-message-bubble {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    word-wrap: break-word;
+    position: relative;
+}
+
+.group-message.sent .group-message-bubble {
+    background: #007bff;
+    color: white;
+}
+
+.group-message-time {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+}
+
+.group-message.sent .group-message-time {
+    text-align: right;
+}
+
+/* Pinned Messages */
+.pinned-message {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-left: 4px solid #ffc107;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.pinned-message::before {
+    content: "📌";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 16px;
+}
+
+/* Replies */
+.message-replies {
+    margin-left: 48px;
+    margin-top: 8px;
+    padding-left: 16px;
+    border-left: 2px solid #e9ecef;
+}
+
+.message-reply {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* Reply Form Styling */
+.reply-form {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-top: 10px;
+}
+
+.reply-form .input-group {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.reply-form .form-control {
+    border-radius: 20px;
+    border: 2px solid #e9ecef;
+    padding: 10px 16px;
+    font-size: 13px;
+    resize: none;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    flex: 1;
+    min-width: 0;
+}
+
+.reply-form .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.reply-form .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.reply-form .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+.reply-form .btn-secondary {
+    background: #6c757d;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.reply-form .btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
+/* Visual Enhancements */
+.group-sidebar-header h4 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.group-sidebar-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.group-chat-header h4 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.group-chat-header .btn-outline-primary {
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.group-chat-header .btn-outline-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Enhanced scrollbar for sidebar */
+.group-sidebar-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.group-sidebar-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.group-sidebar-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.group-sidebar-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .group-chat-container {
+        flex-direction: column;
+        height: 100vh;
+    }
+    
+    .group-sidebar {
+        width: 100%;
+        height: 200px;
+        border-right: none;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .group-message {
+        max-width: 85%;
+    }
+    
+    .group-chat-input .btn-primary {
+        margin-left: 5px;
+        padding: 10px 16px;
+    }
+    
+    .group-chat-input .form-control {
+        padding: 10px 16px;
+    }
+}
+
+/* Scrollbar Styling */
+.group-chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.group-chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.group-chat-messages::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.group-chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<div class="group-chat-container">
+    <!-- Group Sidebar -->
+    <div class="group-sidebar">
+        <div class="group-sidebar-header">
+            <h4>{{ group.name }}</h4>
+            <p class="mb-0">{{ group.member_count }} members</p>
+        </div>
+        <div class="group-sidebar-content">
+            <!-- Group Info -->
+            <div class="mb-4">
+                <h6><i class="fas fa-info-circle"></i> About</h6>
+                <p class="small text-muted">{{ group.description|linebreaks }}</p>
+                <div class="small">
+                    <div class="mb-1"><strong>Created:</strong> {{ group.created_at|date:"M d, Y" }}</div>
+                    <div class="mb-1"><strong>Created by:</strong> {{ group.created_by.username }}</div>
+                    <div><strong>Status:</strong> 
+                        {% if group.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Group Actions -->
+            {% if user.is_authenticated %}
+                <div class="mb-4">
+                    <h6><i class="fas fa-cog"></i> Actions</h6>
+                    {% if is_member %}
+                        <form action="{% url 'leave_group' group.pk %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Are you sure you want to leave this group?')">
+                                <i class="fas fa-sign-out-alt"></i> Leave Group
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="{% url 'join_group' group.pk %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-user-plus"></i> Join Group
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            <!-- Members -->
+            <div>
+                <h6><i class="fas fa-users"></i> Members ({{ group.member_count }})</h6>
+                {% if group.members.all %}
+                    {% for member in group.members.all %}
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="group-message-avatar" style="width: 28px; height: 28px; font-size: 12px;">
+                                {{ member.username.0.upper }}
+                            </div>
+                            <div class="ms-2">
+                                <div class="small"><strong>{{ member.username }}</strong></div>
+                                {% if member.get_role_display %}
+                                    <span class="badge bg-secondary" style="font-size: 10px;">{{ member.get_role_display }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="small text-muted">No members yet. Be the first to join!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Group Chat Area -->
+    <div class="group-chat-area">
+        <div class="group-chat-header">
+            <div class="d-flex align-items-center">
+                <div class="group-message-avatar">
+                    {{ group.name.0.upper }}
+                </div>
+                <div class="ms-3">
+                    <h4 class="mb-0">{{ group.name }}</h4>
+                    <small class="text-muted">{{ group.member_count }} members</small>
+                </div>
+            </div>
+            <div>
+                {% if user.is_authenticated and is_member %}
+                    <button class="btn btn-outline-primary btn-sm" onclick="toggleSidebar()">
+                        <i class="fas fa-info-circle"></i> Group Info
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="group-chat-messages" id="group-messages">
+            {% if user.is_authenticated and is_member %}
+                <!-- Pinned Messages -->
+                {% if pinned_messages %}
+                    {% for message in pinned_messages %}
+                        <div class="pinned-message">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ message.sender.username }}</strong>
+                                <small class="text-muted">{{ message.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                            <div class="mt-2">{{ message.content|linebreaks }}</div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <!-- Regular Messages -->
+                {% for message in messages %}
+                    <div class="group-message {% if message.sender == user %}sent{% else %}received{% endif %}">
+                        <div class="group-message-avatar">
+                            {{ message.sender.username.0.upper }}
+                        </div>
+                        <div class="group-message-content">
+                            <div class="group-message-header">
+                                <strong>{{ message.sender.username }}</strong>
+                                {% if message.sender.is_admin or message.sender.is_moderator or message.sender.is_expert %}
+                                    {% if message.sender.is_admin %}
+                                        <span class="badge bg-danger">Admin</span>
+                                    {% elif message.sender.is_moderator %}
+                                        <span class="badge bg-warning">Moderator</span>
+                                    {% elif message.sender.is_expert %}
+                                        <span class="badge bg-success">Expert</span>
+                                    {% endif %}
+                                {% endif %}
+                                <span>{{ message.created_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                            <div class="group-message-bubble">
+                                {{ message.content|linebreaks }}
+                            </div>
+                            <div class="group-message-time">
+                                {{ message.created_at|date:"H:i" }}
+                                {% if message.is_pinned %}<i class="fas fa-thumbtack text-warning ms-2"></i>{% endif %}
+                            </div>
+                            
+                            <!-- Reply Button -->
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="showReplyForm('{{ message.id }}')">
+                                    <i class="fas fa-reply"></i> Reply
+                                </button>
+                                {% if user.is_admin or user.is_moderator %}
+                                    <a href="{% url 'pin_group_message' group.pk message.id %}" class="btn btn-sm btn-outline-warning">
+                                        <i class="fas fa-thumbtack"></i> {% if message.is_pinned %}Unpin{% else %}Pin{% endif %}
+                                    </a>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Reply Form -->
+                            <div id="reply-form-{{ message.id }}" class="reply-form mt-2" style="display: none;">
+                                <form action="{% url 'send_group_message' group.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="reply_to" value="{{ message.id }}">
+                                    <div class="input-group">
+                                        <textarea name="content" class="form-control" placeholder="Reply to {{ message.sender.username }}..." rows="2" required></textarea>
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-paper-plane"></i> Reply
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="hideReplyForm('{{ message.id }}')">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Replies -->
+                            {% if message.replies.all %}
+                                <div class="message-replies">
+                                    {% for reply in message.replies.all %}
+                                        <div class="message-reply">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>{{ reply.sender.username }}</strong>
+                                                <small class="text-muted">{{ reply.created_at|date:"H:i" }}</small>
+                                            </div>
+                                            <div class="mt-1">{{ reply.content|linebreaks }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-comments fa-3x mb-3"></i>
+                        <p>No messages yet. Start the conversation!</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center text-muted">
+                    <i class="fas fa-lock fa-3x mb-3"></i>
+                    {% if user.is_authenticated %}
+                        <p>Join this group to participate in conversations.</p>
+                    {% else %}
+                        <p><a href="{% url 'login' %}?next={{ request.path }}">Login</a> and join this group to participate in conversations.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Message Input -->
+        {% if user.is_authenticated and is_member %}
+            <div class="group-chat-input">
+                <form action="{% url 'send_group_message' group.pk %}" method="post">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <textarea name="content" class="form-control" placeholder="Type your message here..." rows="2" required></textarea>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function showReplyForm(messageId) {
+    const replyForm = document.getElementById('reply-form-' + messageId);
+    if (replyForm) {
+        replyForm.style.display = 'block';
+        const textarea = replyForm.querySelector('textarea');
+        if (textarea) {
+            textarea.focus();
+        }
+    }
+}
+
+function hideReplyForm(messageId) {
+    const replyForm = document.getElementById('reply-form-' + messageId);
+    if (replyForm) {
+        replyForm.style.display = 'none';
+        const textarea = replyForm.querySelector('textarea');
+        if (textarea) {
+            textarea.value = '';
+        }
+    }
+}
+
+function toggleSidebar() {
+    const sidebar = document.querySelector('.group-sidebar');
+    sidebar.classList.toggle('mobile-open');
+}
+
+// Auto-scroll to bottom of messages when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const messagesContainer = document.getElementById('group-messages');
+    if (messagesContainer) {
+        // Small delay to ensure all content is rendered
+        setTimeout(function() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 100);
+    }
+});
+
+// Auto-scroll to bottom when new messages are added
+const observer = new MutationObserver(function(mutations) {
+    const messagesContainer = document.getElementById('group-messages');
+    if (messagesContainer) {
+        // Small delay to ensure new content is rendered
+        setTimeout(function() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 50);
+    }
+});
+
+const messagesContainer = document.getElementById('group-messages');
+if (messagesContainer) {
+    observer.observe(messagesContainer, { 
+        childList: true, 
+        subtree: true,
+        attributes: false,
+        characterData: false
+    });
+}
+
+// Additional scroll to bottom when form is submitted
+document.addEventListener('DOMContentLoaded', function() {
+    const messageForm = document.querySelector('form[action*="send-message"]');
+    if (messageForm) {
+        messageForm.addEventListener('submit', function() {
+            // Scroll to bottom after form submission
+            setTimeout(function() {
+                const messagesContainer = document.getElementById('group-messages');
+                if (messagesContainer) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            }, 300);
+        });
+    }
+});
+</script>
+{% endblock %}

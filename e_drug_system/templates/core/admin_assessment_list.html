@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Assessments - Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+.admin-assessment-list {
+    padding: 20px 0;
+}
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+}
+.page-header h1 {
+    margin: 0;
+    font-size: 36px;
+}
+.page-header p {
+    margin: 10px 0 0 0;
+    opacity: 0.9;
+}
+.action-bar {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.assessment-list {
+    display: grid;
+    gap: 20px;
+}
+.assessment-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+.assessment-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+.assessment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+.assessment-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 20px;
+}
+.assessment-meta {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+.assessment-meta span {
+    margin-right: 20px;
+}
+.assessment-description {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+.assessment-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.stat-badge {
+    background: #f0f0f0;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #666;
+}
+.assessment-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+.btn-primary:hover {
+    background: #5568d3;
+}
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+.btn-danger {
+    background: #ff6b6b;
+    color: white;
+}
+.btn-danger:hover {
+    background: #ee5a5a;
+}
+.btn-success {
+    background: #1dd1a1;
+    color: white;
+}
+.btn-success:hover {
+    background: #10ac84;
+}
+.no-items {
+    text-align: center;
+    padding: 60px;
+    color: #999;
+    font-style: italic;
+}
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <h1>Manage Assessments</h1>
+        <p>Create, edit, and delete assessment templates</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="admin-assessment-list">
+        <div class="action-bar">
+            <h2 style="margin: 0;">Assessment Templates</h2>
+            <a href="{% url 'admin_create_assessment' %}" class="btn btn-primary">+ Create Assessment</a>
+        </div>
+
+        {% if assessments %}
+        <div class="assessment-list">
+            {% for assessment in assessments %}
+            <div class="assessment-card">
+                <div class="assessment-header">
+                    <h3>{{ assessment.title }}</h3>
+                    <span class="stat-badge">{{ assessment.questions.count }} Questions</span>
+                </div>
+                <div class="assessment-meta">
+                    <span>Created by: {{ assessment.created_by.username }}</span>
+                    <span>Date: {{ assessment.created_at|date:"F d, Y" }}</span>
+                </div>
+                <div class="assessment-description">
+                    {{ assessment.description|truncatewords:30 }}
+                </div>
+                <div class="assessment-actions">
+                    <a href="{% url 'admin_assessment_questions' assessment.id %}" class="btn btn-success">Manage Questions</a>
+                    <a href="{% url 'admin_edit_assessment' assessment.id %}" class="btn btn-secondary">Edit</a>
+                    <a href="{% url 'admin_delete_assessment' assessment.id %}" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="no-items">No assessment templates found. Create your first assessment to get started.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

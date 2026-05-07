@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Monitor User Progress{% endblock %}
+
+{% block content %}
+<style>
+.monitor-progress {
+    padding: 20px 0;
+}
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+}
+.page-header h1 {
+    margin: 0;
+    font-size: 36px;
+}
+.page-header p {
+    margin: 10px 0 0 0;
+    opacity: 0.9;
+}
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+.section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.section-header {
+    margin-bottom: 25px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+.section-header h2 {
+    margin: 0;
+    color: #333;
+}
+.user-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.user-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.user-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    border-color: #667eea;
+}
+.user-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.user-card-header h3 {
+    margin: 0;
+    color: #333;
+}
+.user-card-meta {
+    color: #666;
+    font-size: 14px;
+}
+.alert-card {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+.alert-card.urgent {
+    background: #ff6b6b;
+    border-color: #ee5a5a;
+    color: white;
+}
+.alert-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.alert-card-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+.alert-card-meta {
+    font-size: 14px;
+    opacity: 0.9;
+}
+.alert-card-body {
+    font-size: 14px;
+    line-height: 1.6;
+}
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+.btn-primary:hover {
+    background: #5568d3;
+}
+.no-items {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-style: italic;
+}
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <h1>Monitor User Progress</h1>
+        <p>Track rehabilitation progress and identify users who need support</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="monitor-progress">
+        <div class="content-grid">
+            <!-- Users with Active Plans -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>👥 Users with Active Plans</h2>
+                </div>
+
+                {% if users_with_plans %}
+                <div class="user-list">
+                    {% for user in users_with_plans %}
+                    <a href="{% url 'view_user_progress_detail' user.id %}" class="user-card">
+                        <div class="user-card-header">
+                            <h3>{{ user.username }}</h3>
+                            <span class="btn btn-primary">View Details</span>
+                        </div>
+                        <div class="user-card-meta">
+                            Email: {{ user.email }}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="no-items">No users with active rehabilitation plans</p>
+                {% endif %}
+            </div>
+
+            <!-- Self-Harm Alerts -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>🚨 Self-Harm Alerts</h2>
+                </div>
+
+                {% if recent_progress %}
+                <div class="alert-list">
+                    {% for progress in recent_progress %}
+                    <div class="alert-card urgent">
+                        <div class="alert-card-header">
+                            <h3>⚠️ {{ progress.rehabilitation_plan.user.username }}</h3>
+                            <span class="alert-card-meta">{{ progress.date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="alert-card-body">
+                            <strong>Self-harm indicators detected.</strong> This user has reported concerning responses in their daily progress and requires immediate attention.
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <a href="{% url 'view_user_progress_detail' progress.rehabilitation_plan.user.id %}" class="btn btn-primary" style="background: white; color: #ff6b6b;">View Full Progress</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="no-items">No recent self-harm alerts</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

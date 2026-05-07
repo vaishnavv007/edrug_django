@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+
+{% block title %}User Progress - {{ user.username }}{% endblock %}
+
+{% block content %}
+<style>
+.user-progress-detail {
+    padding: 20px 0;
+}
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+}
+.page-header h1 {
+    margin: 0;
+    font-size: 36px;
+}
+.page-header p {
+    margin: 10px 0 0 0;
+    opacity: 0.9;
+}
+.back-link {
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+}
+.back-link:hover {
+    opacity: 1;
+}
+.content-container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+}
+.main-content {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.sidebar {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+.section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+.section-header {
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+.section-header h2 {
+    margin: 0;
+    color: #333;
+}
+.info-item {
+    margin-bottom: 15px;
+}
+.info-item label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+.info-item .value {
+    color: #666;
+}
+.activities-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.activity-badge {
+    background: #667eea;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+.progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.progress-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+.progress-item.flagged {
+    border-color: #ff6b6b;
+    background: #fff5f5;
+}
+.progress-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.progress-item-header .date {
+    font-weight: 600;
+    color: #333;
+}
+.progress-item-header .badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.progress-item-header .badge-flagged {
+    background: #ff6b6b;
+    color: white;
+}
+.progress-item-header .badge-normal {
+    background: #1dd1a1;
+    color: white;
+}
+.progress-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.progress-detail {
+    font-size: 14px;
+    color: #666;
+}
+.progress-detail strong {
+    color: #333;
+}
+.ai-analysis {
+    background: #e8f4ff;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 15px;
+}
+.ai-analysis h4 {
+    margin: 0 0 10px 0;
+    color: #667eea;
+    font-size: 14px;
+}
+.ai-analysis p {
+    margin: 0;
+    color: #666;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.risk-bar {
+    background: #e0e0e0;
+    border-radius: 10px;
+    height: 20px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+.risk-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+.risk-low {
+    background: linear-gradient(90deg, #1dd1a1, #10ac84);
+}
+.risk-medium {
+    background: linear-gradient(90deg, #feca57, #f0b447);
+}
+.risk-high {
+    background: linear-gradient(90deg, #ff6b6b, #ee5a5a);
+}
+.no-progress {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-style: italic;
+}
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+.btn-primary:hover {
+    background: #5568d3;
+}
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const riskFillBar = document.getElementById('risk-fill-bar');
+    if (riskFillBar) {
+        const riskLevel = parseInt(riskFillBar.getAttribute('data-risk-level'));
+        riskFillBar.style.width = riskLevel + '%';
+        
+        if (riskLevel < 30) {
+            riskFillBar.style.background = 'linear-gradient(90deg, #1dd1a1, #10ac84)';
+        } else if (riskLevel < 70) {
+            riskFillBar.style.background = 'linear-gradient(90deg, #feca57, #f0b447)';
+        } else {
+            riskFillBar.style.background = 'linear-gradient(90deg, #ff6b6b, #ee5a5a)';
+        }
+    }
+});
+</script>
+
+<div class="page-header">
+    <div class="container">
+        <a href="{% url 'monitor_user_progress' %}" class="back-link">← Back to Monitoring</a>
+        <h1>{{ user.username }}'s Progress</h1>
+        <p>Rehabilitation plan and daily progress tracking</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="user-progress-detail">
+        <div class="content-container">
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="section">
+                    <div class="section-header">
+                        <h2>🎯 Rehabilitation Plan</h2>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Primary Goal</label>
+                        <div class="value">{{ plan.get_primary_goal_display }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Short-term Goal</label>
+                        <div class="value">{{ plan.short_term_goal }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Long-term Goal</label>
+                        <div class="value">{{ plan.long_term_goal }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Activities</label>
+                        <div class="activities-list">
+                            {% for activity in plan.activities %}
+                            <span class="activity-badge">{{ activity }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <label>Risk Situations</label>
+                        <div class="value">
+                            {% if plan.risk_situations %}
+                            {{ plan.risk_situations }}
+                            {% else %}
+                            None identified
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2>📊 Daily Progress History</h2>
+                    </div>
+
+                    {% if daily_progress %}
+                    <div class="progress-list">
+                        {% for progress in daily_progress %}
+                        <div class="progress-item {% if progress.self_harm_detected %}flagged{% endif %}">
+                            <div class="progress-item-header">
+                                <span class="date">{{ progress.date|date:"M d, Y" }}</span>
+                                {% if progress.self_harm_detected %}
+                                <span class="badge badge-flagged">⚠️ Flagged</span>
+                                {% else %}
+                                <span class="badge badge-normal">Normal</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="progress-details">
+                                <div class="progress-detail"><strong>Mood:</strong> {{ progress.mood_rating }}/5</div>
+                                <div class="progress-detail"><strong>Confidence:</strong> {{ progress.confidence_rating }}/5</div>
+                                <div class="progress-detail"><strong>Cravings:</strong> {{ progress.get_craving_intensity_display }}</div>
+                                <div class="progress-detail"><strong>Relapsed:</strong> {% if progress.relapsed %}Yes{% else %}No{% endif %}</div>
+                                <div class="progress-detail"><strong>Activities:</strong> {% if progress.completed_activities %}Completed{% else %}Not Completed{% endif %}</div>
+                                <div class="progress-detail"><strong>Risk:</strong> {{ progress.get_risk_level_display }}</div>
+                            </div>
+                            
+                            {% if progress.triggers %}
+                            <div style="margin-bottom: 10px;">
+                                <strong>Triggers:</strong> {{ progress.triggers }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if progress.cravings_handling %}
+                            <div style="margin-bottom: 10px;">
+                                <strong>Handling:</strong> {{ progress.cravings_handling }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if progress.ai_analysis %}
+                            <div class="ai-analysis">
+                                <h4>AI Analysis:</h4>
+                                <p>{{ progress.ai_analysis }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="no-progress">No daily progress recorded yet</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="section-header">
+                    <h2>Risk Level</h2>
+                </div>
+                
+                <div class="info-item">
+                    <label>Current Risk</label>
+                    <div style="font-size: 36px; font-weight: bold; color: #667eea;">{{ plan.risk_level }}%</div>
+                </div>
+
+                <div class="risk-bar">
+                    <div class="risk-fill" id="risk-fill-bar" data-risk-level="{{ plan.risk_level }}"></div>
+                </div>
+
+                <div class="info-item">
+                    <label>Days Tracked</label>
+                    <div style="font-size: 24px; font-weight: bold; color: #667eea;">{{ daily_progress.count }}</div>
+                </div>
+
+                {% if daily_progress %}
+                <div class="info-item">
+                    <label>Flagged Entries</label>
+                    <div style="font-size: 24px; font-weight: bold; color: #ff6b6b;">{{ flagged_count }}</div>
+                </div>
+                {% endif %}
+
+                {% if plan.ai_analysis %}
+                <div class="ai-analysis" style="margin-top: 20px;">
+                    <h4>Plan Analysis:</h4>
+                    <p>{{ plan.ai_analysis }}</p>
+                </div>
+                {% endif %}
+
+                <div style="margin-top: 20px;">
+                    <a href="{% url 'send_guidance' user.id %}" class="btn btn-primary" style="display: block; text-align: center; margin-bottom: 10px;">Send Guidance</a>
+                    <a href="{% url 'messages' %}" class="btn btn-secondary" style="display: block; text-align: center;">Send Message</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

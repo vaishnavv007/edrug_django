@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Expert Dashboard - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Healthcare Expert Dashboard</h1>
+        <p>Monitor high-risk users and provide professional guidance</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="expert-dashboard">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>High-Risk Users</h3>
+                <p class="stat-number">{{ high_risk_users }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Assessments</h3>
+                <p class="stat-number">{{ total_assessments }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>High-Risk Assessments</h3>
+                <p class="stat-number">{{ high_risk_assessments }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Verified Posts</h3>
+                <p class="stat-number">{{ verified_posts }}</p>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <a href="{% url 'create_verified_post' %}" class="btn btn-primary">Create Verified Post</a>
+            <a href="{% url 'high_risk_users' %}" class="btn btn-warning">View High-Risk Users</a>
+        </div>
+
+        <div class="recent-assessments">
+            <h2>High-Risk Assessments</h2>
+            {% if recent_assessments %}
+            <div class="assessments-list">
+                {% for assessment in recent_assessments %}
+                <div class="assessment-item">
+                    <div class="assessment-header">
+                        <h3>{% if assessment.user %}{{ assessment.user.username }}{% else %}Anonymous{% endif %}</h3>
+                        <span class="badge badge-danger">Risk Score: {{ assessment.risk_score|floatformat:1 }}</span>
+                        <span class="badge">{{ assessment.sentiment }}</span>
+                    </div>
+                    <p class="assessment-date">{{ assessment.created_at|date:"F d, Y g:i A" }}</p>
+                    {% if assessment.user %}
+                    <div class="assessment-actions">
+                        <a href="{% url 'send_guidance' assessment.user.id %}" class="btn btn-primary">Send Guidance</a>
+                        <a href="{% url 'rehabilitation_planning' assessment.user.id %}" class="btn btn-secondary">Rehab Planning</a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No high-risk assessments found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

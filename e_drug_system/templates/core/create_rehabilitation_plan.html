@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Rehabilitation Plan{% endblock %}
+
+{% block content %}
+<style>
+.rehab-plan-form {
+    padding: 20px 0;
+}
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.form-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+.form-header h1 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+.form-header p {
+    margin: 0;
+    color: #666;
+}
+.form-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+.form-section h3 {
+    margin: 0 0 20px 0;
+    color: #667eea;
+    font-size: 18px;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.checkbox-item {
+    flex: 1;
+    min-width: 150px;
+}
+.checkbox-item label {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.checkbox-item label:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+.checkbox-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+.help-text {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #999;
+}
+.btn-submit {
+    background: #667eea;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+.btn-submit:hover {
+    background: #5568d3;
+}
+.error-message {
+    background: #ff6b6b;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <h1>Create Rehabilitation Plan</h1>
+        <p>Set your recovery goals and preferences</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="rehab-plan-form">
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Your Rehabilitation Plan</h1>
+                <p>Answer the questions below to create your personalized recovery plan</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="error-message">
+                <strong>Error:</strong> Please correct the errors below.
+                {% for field, errors in form.errors.items %}
+                <br>{{ field }}: {{ errors|join:", " }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-section">
+                    <h3>🎯 Goal Setting</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.primary_goal.id_for_label }}">Primary Goal *</label>
+                        <select name="{{ form.primary_goal.name }}" id="{{ form.primary_goal.id_for_label }}" required>
+                            <option value="">Select your primary goal...</option>
+                            {% for value, label in form.fields.primary_goal.choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-text">What is your main objective for recovery?</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.short_term_goal.id_for_label }}">Short-term Goal (7 days) *</label>
+                        <textarea name="{{ form.short_term_goal.name }}" id="{{ form.short_term_goal.id_for_label }}" required placeholder="What do you want to achieve in the next 7 days?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.long_term_goal.id_for_label }}">Long-term Goal (30-60 days) *</label>
+                        <textarea name="{{ form.long_term_goal.name }}" id="{{ form.long_term_goal.id_for_label }}" required placeholder="What do you want to achieve in the next 30-60 days?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.hours_per_day.id_for_label }}">Hours per Day for Recovery Activities *</label>
+                        <input type="number" name="{{ form.hours_per_day.name }}" id="{{ form.hours_per_day.id_for_label }}" min="1" max="24" required placeholder="1-24">
+                        <div class="help-text">How many hours can you dedicate daily to your recovery?</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>📅 Activity Preferences</h3>
+                    
+                    <div class="form-group">
+                        <label>Activities You're Willing to Do *</label>
+                        <div class="checkbox-group">
+                            {% for value, label in form.fields.activities.choices %}
+                            <div class="checkbox-item">
+                                <label>
+                                    <input type="checkbox" name="activities" value="{{ value }}">
+                                    {{ label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="help-text">Select all activities you're willing to participate in</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.activity_frequency.id_for_label }}">Activity Frequency *</label>
+                        <select name="{{ form.activity_frequency.name }}" id="{{ form.activity_frequency.id_for_label }}" required>
+                            <option value="">Select frequency...</option>
+                            {% for value, label in form.fields.activity_frequency.choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-text">How often can you perform these activities?</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>⚠️ Risk Tracking</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.risk_situations.id_for_label }}">Situations That Make You Want to Use Again</label>
+                        <textarea name="{{ form.risk_situations.name }}" id="{{ form.risk_situations.id_for_label }}" placeholder="What situations or triggers make you want to use again? (Optional)"></textarea>
+                        <div class="help-text">This helps us understand your triggers and provide better support</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Create My Plan</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

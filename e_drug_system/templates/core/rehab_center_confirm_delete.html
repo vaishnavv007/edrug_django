@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Rehabilitation Center - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Delete Rehabilitation Center</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="delete-confirmation">
+        <h2>Are you sure you want to delete "{{ center.name }}"?</h2>
+        <p>This action cannot be undone.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                <a href="{% url 'rehab_center_detail' center.pk %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

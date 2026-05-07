@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Support Groups - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Support Groups</h1>
+        <p>Connect with others on the recovery journey</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="group-grid">
+        {% for group in groups %}
+        <div class="group-card">
+            <h3>{{ group.name }}</h3>
+            <p class="schedule">{{ group.meeting_schedule }}</p>
+            <p class="location">{{ group.location }}</p>
+            {% if group.is_online %}
+            <span class="badge badge-info">Online</span>
+            {% endif %}
+            <p>{{ group.description|truncatewords:15 }}</p>
+            <a href="{% url 'support_group_detail' group.pk %}" class="btn">View Details</a>
+        </div>
+        {% empty %}
+        <p>No support groups available yet.</p>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <div class="pagination">
+        <span class="page-links">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+            <span class="page-current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

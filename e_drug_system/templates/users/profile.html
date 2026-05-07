@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-container">
+        <h1>My Profile</h1>
+        
+        <div class="profile-card">
+            {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
+            {% endif %}
+            
+            <div class="profile-info">
+                <h2>{{ user.get_full_name|default:user.username }}</h2>
+                <p class="role-badge">{{ user.get_role_display }}</p>
+                
+                <div class="profile-details">
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    {% if user.phone %}
+                    <p><strong>Phone:</strong> {{ user.phone }}</p>
+                    {% endif %}
+                    {% if user.date_of_birth %}
+                    <p><strong>Date of Birth:</strong> {{ user.date_of_birth|date:"F d, Y" }}</p>
+                    {% endif %}
+                    {% if user.bio %}
+                    <p><strong>Bio:</strong> {{ user.bio }}</p>
+                    {% endif %}
+                    <p><strong>Member Since:</strong> {{ user.created_at|date:"F d, Y" }}</p>
+                </div>
+                
+                <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Daily Progress{% endblock %}
+
+{% block content %}
+<style>
+.daily-progress-form {
+    padding: 20px 0;
+}
+.form-container {
+    max-width: 700px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.form-header {
+    margin-bottom: 30px;
+}
+.form-header h1 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+.form-header p {
+    margin: 0;
+    color: #666;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+.form-group input[type="checkbox"] {
+    width: auto;
+}
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.checkbox-label input {
+    margin-right: 10px;
+}
+.help-text {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #999;
+}
+.btn-submit {
+    background: #667eea;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+.btn-submit:hover {
+    background: #5568d3;
+}
+.btn-cancel {
+    background: #e0e0e0;
+    color: #333;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    margin-top: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background 0.3s ease;
+}
+.btn-cancel:hover {
+    background: #d0d0d0;
+}
+.error-message {
+    background: #ff6b6b;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+.form-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+.form-section h3 {
+    margin: 0 0 20px 0;
+    color: #667eea;
+    font-size: 18px;
+}
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <h1>Submit Daily Progress</h1>
+        <p>Track your recovery journey today</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="daily-progress-form">
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Daily Progress Check-in</h1>
+                <p>How are you feeling today? Take a moment to reflect on your progress.</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="error-message">
+                <strong>Error:</strong> Please correct the errors below.
+                {% for field, errors in form.errors.items %}
+                <br>{{ field }}: {{ errors|join:", " }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-section">
+                    <h3>📊 Daily Activities</h3>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="{{ form.completed_activities.name }}" id="{{ form.completed_activities.id_for_label }}">
+                            I completed today's planned activities
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>😊 Mood & Feelings</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.mood_rating.id_for_label }}">How would you rate your mood today? (1-5) *</label>
+                        <input type="number" name="{{ form.mood_rating.name }}" id="{{ form.mood_rating.id_for_label }}" min="1" max="5" required>
+                        <div class="help-text">1 = Very low, 5 = Very good</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.confidence_rating.id_for_label }}">How confident do you feel about continuing? (1-5) *</label>
+                        <input type="number" name="{{ form.confidence_rating.name }}" id="{{ form.confidence_rating.id_for_label }}" min="1" max="5" required>
+                        <div class="help-text">1 = Not confident, 5 = Very confident</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>⚠️ Cravings & Triggers</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.craving_intensity.id_for_label }}">Did you experience any cravings today?</label>
+                        <select name="{{ form.craving_intensity.name }}" id="{{ form.craving_intensity.id_for_label }}">
+                            <option value="none">None</option>
+                            <option value="mild">Mild</option>
+                            <option value="strong">Strong</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.triggers.id_for_label }}">What triggered your cravings (if any)?</label>
+                        <textarea name="{{ form.triggers.name }}" id="{{ form.triggers.id_for_label }}" placeholder="Describe what triggered your cravings..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.cravings_handling.id_for_label }}">How did you handle cravings today?</label>
+                        <textarea name="{{ form.cravings_handling.name }}" id="{{ form.cravings_handling.id_for_label }}" placeholder="Describe how you managed your cravings..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="{{ form.relapsed.name }}" id="{{ form.relapsed.id_for_label }}">
+                            I relapsed today
+                        </label>
+                        <div class="help-text">Be honest - this helps us provide better support</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🛡️ Self-Assessment</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.risk_level.id_for_label }}">Do you feel at risk of relapse?</label>
+                        <select name="{{ form.risk_level.name }}" id="{{ form.risk_level.id_for_label }}">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Submit Progress</button>
+                <a href="{% url 'view_rehabilitation_plan' plan.id %}" class="btn-cancel">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

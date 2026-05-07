@@ -1,0 +1,163 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.installed.cfg
+*.egg-manifest
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+/media/
+/staticfiles/
+/static/
+/local_settings.py
+/coverage/
+/nose2.xml
+/htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+config/.env
+secrets.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+.spyderproject
+.spyproject
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# AI Models
+faiss_index/
+fake_news_bert_model/
+*.bin
+*.pt
+*.pth
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.model
+*.onnx
+*.tflite
+*.safetensors
+
+# User Uploads
+media/
+profiles/
+resources/thumbnails/
+uploads/
+user_files/
+documents/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.sql.gz
+*.dump
+
+# Logs
+logs/
+*.log
+*.log.*
+*.out
+*.err
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+
+# Security
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+private_key.pem
+certificate.pem
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+docker-compose.prod.yml
+
+# Node.js (if using frontend tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Package Managers
+requirements-dev.txt
+requirements-test.txt
+Pipfile.lock
+poetry.lock
+
+# Documentation
+docs/_build/
+.sphinx/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# Development
+dev/
+development/
+test_data/
+fixtures/

@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Research Paper{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-edit"></i> Edit Research Paper</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Paper Title *</label>
+                                    <input type="text" class="form-control" id="title" name="title" required 
+                                           value="{{ paper.title }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="authors" class="form-label">Authors *</label>
+                                    <input type="text" class="form-control" id="authors" name="authors" required 
+                                           value="{{ paper.authors }}">
+                                    <div class="form-text">Enter all authors separated by commas</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="abstract" class="form-label">Abstract *</label>
+                                    <textarea class="form-control" id="abstract" name="abstract" rows="4" required>{{ paper.abstract }}</textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Full Content *</label>
+                                    <textarea class="form-control" id="content" name="content" rows="15" required>{{ paper.content }}</textarea>
+                                    <div class="form-text">You can paste the complete paper content including methodology, results, discussion, and conclusions.</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="journal" class="form-label">Journal</label>
+                                    <input type="text" class="form-control" id="journal" name="journal" 
+                                           value="{{ paper.journal }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="publication_date" class="form-label">Publication Date</label>
+                                    <input type="date" class="form-control" id="publication_date" name="publication_date" 
+                                           value="{{ paper.publication_date|date:'Y-m-d' }}">
+                                    <div class="form-text">If previously published</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="doi" class="form-label">DOI</label>
+                                    <input type="url" class="form-control" id="doi" name="doi" 
+                                           value="{{ paper.doi }}">
+                                    <div class="form-text">Digital Object Identifier (if available)</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="keywords" class="form-label">Keywords</label>
+                                    <input type="text" class="form-control" id="keywords" name="keywords" 
+                                           value="{{ paper.keywords }}">
+                                    <div class="form-text">Enter keywords separated by commas</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="pdf_file" class="form-label">PDF File</label>
+                                    <input type="file" class="form-control" id="pdf_file" name="pdf_file" 
+                                           accept=".pdf">
+                                    {% if paper.pdf_file %}
+                                        <div class="form-text">
+                                            Current file: <a href="{{ paper.pdf_file.url }}" target="_blank">{{ paper.pdf_file.name }}</a>
+                                            <br>Leave empty to keep current file
+                                        </div>
+                                    {% else %}
+                                        <div class="form-text">Upload PDF version of the paper (optional)</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'research_paper_detail' paper.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Paper
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Paper Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Created:</strong> {{ paper.created_at|date:"M d, Y H:i" }}<br>
+                            <strong>Last Updated:</strong> {{ paper.updated_at|date:"M d, Y H:i" }}<br>
+                            <strong>Status:</strong> 
+                            {% if paper.is_verified %}
+                                <span class="badge bg-success">Verified</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Not Verified</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Published by:</strong> {{ paper.published_by.username }}<br>
+                            {% if paper.pdf_file %}
+                                <strong>Current PDF:</strong> 
+                                <a href="{{ paper.pdf_file.url }}" target="_blank">Download</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

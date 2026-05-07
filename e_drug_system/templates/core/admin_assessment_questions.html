@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Questions - {{ assessment.title }}{% endblock %}
+
+{% block content %}
+<style>
+.admin-assessment-questions {
+    padding: 20px 0;
+}
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+}
+.page-header h1 {
+    margin: 0;
+    font-size: 36px;
+}
+.page-header p {
+    margin: 10px 0 0 0;
+    opacity: 0.9;
+}
+.back-link {
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+}
+.back-link:hover {
+    opacity: 1;
+}
+.content-container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+}
+.questions-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.form-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+.section-header {
+    margin-bottom: 25px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+.section-header h2 {
+    margin: 0;
+    color: #333;
+}
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.question-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+.question-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+.question-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    flex: 1;
+}
+.badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.badge-severity {
+    background: #ff6b6b;
+    color: white;
+}
+.badge-readiness {
+    background: #54a0ff;
+    color: white;
+}
+.badge-mental_state {
+    background: #1dd1a1;
+    color: white;
+}
+.question-text {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+.question-meta {
+    color: #999;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+.question-actions {
+    display: flex;
+    gap: 10px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+.btn-primary {
+    background: #667eea;
+    color: white;
+    width: 100%;
+}
+.btn-primary:hover {
+    background: #5568d3;
+}
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+.btn-danger {
+    background: #ff6b6b;
+    color: white;
+}
+.btn-danger:hover {
+    background: #ee5a5a;
+}
+.no-questions {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-style: italic;
+}
+.error-message {
+    background: #ff6b6b;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <a href="{% url 'admin_assessment_list' %}" class="back-link">← Back to Assessments</a>
+        <h1>{{ assessment.title }}</h1>
+        <p>Manage questions for this assessment</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="admin-assessment-questions">
+        <div class="content-container">
+            <!-- Questions List Section -->
+            <div class="questions-section">
+                <div class="section-header">
+                    <h2>Questions ({{ questions.count }})</h2>
+                </div>
+
+                {% if questions %}
+                <div class="questions-list">
+                    {% for question in questions %}
+                    <div class="question-card">
+                        <div class="question-header">
+                            <h3>{{ question.text|truncatewords:20 }}</h3>
+                            <span class="badge badge-{{ question.category }}">{{ question.get_category_display }}</span>
+                        </div>
+                        <div class="question-text">
+                            {{ question.text }}
+                        </div>
+                        <div class="question-meta">
+                            <strong>Input Type:</strong> {{ question.get_input_type_display }}
+                        </div>
+                        <div class="question-actions">
+                            <a href="{% url 'admin_delete_question' question.id %}" class="btn btn-danger">Delete</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="no-questions">No questions added yet. Add your first question using the form on the right.</p>
+                {% endif %}
+            </div>
+
+            <!-- Add Question Form Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2>Add Question</h2>
+                </div>
+
+                {% if form.errors %}
+                <div class="error-message">
+                    <strong>Error:</strong> Please correct the errors below.
+                    {% for field, errors in form.errors.items %}
+                    <br>{{ field }}: {{ errors|join:", " }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ form.text.id_for_label }}">Question Text *</label>
+                        <textarea name="{{ form.text.name }}" id="{{ form.text.id_for_label }}" required placeholder="Enter the question text..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.category.id_for_label }}">Category *</label>
+                        <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" required>
+                            <option value="">Select category...</option>
+                            {% for value, label in form.fields.category.choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.input_type.id_for_label }}">Input Type *</label>
+                        <select name="{{ form.input_type.name }}" id="{{ form.input_type.id_for_label }}" required>
+                            <option value="">Select input type...</option>
+                            {% for value, label in form.fields.input_type.choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add Question</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

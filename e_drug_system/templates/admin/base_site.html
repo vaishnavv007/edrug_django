@@ -1,0 +1,497 @@
+{% extends "admin/base.html" %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f2f5;
+        color: #333;
+    }
+
+    #header {
+        background: linear-gradient(135deg, #1a365d, #2b6cb0);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        padding: 15px 0;
+    }
+
+    #branding h1 {
+        color: white;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        font-size: 1.5em;
+    }
+
+    #user-tools {
+        color: white;
+        font-weight: 500;
+    }
+
+    #user-tools a {
+        color: white;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        background: rgba(255,255,255,0.1);
+    }
+
+    #user-tools a:hover {
+        background: rgba(255,255,255,0.25);
+        transform: translateY(-1px);
+    }
+
+    .module h2, .module caption, .inline-group h2 {
+        background: linear-gradient(135deg, #1a365d, #2b6cb0);
+        color: white;
+        padding: 12px 18px;
+        border-radius: 8px 8px 0 0;
+        font-weight: 600;
+        font-size: 1.1em;
+    }
+
+    .module {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .module table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .module th, .module td {
+        padding: 14px 18px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .module th {
+        background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+        font-weight: 600;
+        color: #1a365d;
+        text-transform: uppercase;
+        font-size: 0.85em;
+        letter-spacing: 0.5px;
+    }
+
+    .module tr:hover {
+        background-color: #f8fafc;
+        transition: background-color 0.2s ease;
+    }
+
+    .actionlist {
+        padding: 18px;
+    }
+
+    .button, input[type=submit], input[type=button], .submit-row input {
+        background: linear-gradient(135deg, #2b6cb0, #2c5282);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(43, 108, 176, 0.3);
+        font-size: 0.95em;
+    }
+
+    .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover {
+        background: linear-gradient(135deg, #2c5282, #2b6cb0);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(43, 108, 176, 0.4);
+    }
+
+    .button:active, input[type=submit]:active, input[type=button]:active, .submit-row input:active {
+        transform: translateY(0);
+    }
+
+    .button.default, .submit-row input.default {
+        background: linear-gradient(135deg, #27ae60, #1e8449);
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    }
+
+    .button.default:hover, .submit-row input.default:hover {
+        background: linear-gradient(135deg, #1e8449, #27ae60);
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+    }
+
+    .deletelink {
+        color: #e53e3e;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .deletelink:hover {
+        color: #c53030;
+        background: #fff5f5;
+    }
+
+    .form-row {
+        padding: 18px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .form-row:last-child {
+        border-bottom: none;
+    }
+
+    .form-row label {
+        font-weight: 600;
+        color: #1a365d;
+        font-size: 0.95em;
+    }
+
+    .help {
+        font-size: 0.85em;
+        color: #718096;
+        margin-top: 6px;
+        font-style: italic;
+    }
+
+    .inline-related {
+        background: #f8fafc;
+        border-radius: 8px;
+        margin: 15px 0;
+        padding: 18px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .inline-related h3 {
+        background: linear-gradient(135deg, #1a365d, #2b6cb0);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 6px;
+        margin: -18px -18px 18px -18px;
+        font-weight: 600;
+    }
+
+    #content {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        margin: 25px;
+        padding: 30px;
+        border: 1px solid #e2e8f0;
+    }
+
+    #content h1 {
+        color: #1a365d;
+        border-bottom: 3px solid #2b6cb0;
+        padding-bottom: 12px;
+        margin-bottom: 25px;
+        font-weight: 700;
+        font-size: 1.8em;
+    }
+
+    .object-tools {
+        margin-top: -55px;
+    }
+
+    .object-tools a {
+        background: linear-gradient(135deg, #2b6cb0, #2c5282);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(43, 108, 176, 0.3);
+        transition: all 0.3s ease;
+        font-size: 0.9em;
+    }
+
+    .object-tools a:hover {
+        background: linear-gradient(135deg, #2c5282, #2b6cb0);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(43, 108, 176, 0.4);
+    }
+
+    .paginator {
+        padding: 18px;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-top: 25px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .paginator a, .paginator .this-page {
+        padding: 10px 16px;
+        margin: 0 4px;
+        border-radius: 6px;
+        text-decoration: none;
+        background: white;
+        color: #1a365d;
+        border: 1px solid #cbd5e0;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .paginator a:hover {
+        background: #2b6cb0;
+        color: white;
+        border-color: #2b6cb0;
+        transform: translateY(-1px);
+    }
+
+    .paginator .this-page {
+        background: #2b6cb0;
+        color: white;
+        border-color: #2b6cb0;
+        font-weight: 600;
+    }
+
+    .filter {
+        background: #f8fafc;
+        padding: 18px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .filter h2 {
+        background: none;
+        color: #1a365d;
+        font-size: 1.1em;
+        margin-bottom: 18px;
+        font-weight: 600;
+    }
+
+    .filter select {
+        padding: 10px 14px;
+        border: 1px solid #cbd5e0;
+        border-radius: 6px;
+        background: white;
+        width: 100%;
+        font-size: 0.95em;
+        transition: border-color 0.2s ease;
+    }
+
+    .filter select:focus {
+        border-color: #2b6cb0;
+        outline: none;
+    }
+
+    .searchbar {
+        background: #f8fafc;
+        padding: 18px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .searchbar input[type="text"] {
+        padding: 12px 16px;
+        border: 1px solid #cbd5e0;
+        border-radius: 6px;
+        width: 320px;
+        background: white;
+        font-size: 0.95em;
+        transition: all 0.2s ease;
+    }
+
+    .searchbar input[type="text"]:focus {
+        border-color: #2b6cb0;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+    }
+
+    .searchbar input[type="submit"] {
+        margin-left: 12px;
+    }
+
+    .message {
+        padding: 18px 22px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-weight: 500;
+        border-left: 4px solid;
+    }
+
+    .message.success {
+        background: #f0fff4;
+        color: #22543d;
+        border-color: #48bb78;
+    }
+
+    .message.warning {
+        background: #fffff0;
+        color: #744210;
+        border-color: #ecc94b;
+    }
+
+    .message.error {
+        background: #fff5f5;
+        color: #742a2a;
+        border-color: #f56565;
+    }
+
+    /* Dark Theme Support */
+    @media (prefers-color-scheme: dark) {
+        body {
+            background-color: #0f1419;
+            color: #e2e8f0;
+        }
+
+        #header {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        #branding h1 {
+            color: white;
+        }
+
+        .module h2, .module caption, .inline-group h2 {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        .module {
+            background: #1a202c;
+            border-color: #2d3748;
+        }
+
+        .module th, .module td {
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .module th {
+            background: linear-gradient(to bottom, #2d3748, #1a202c);
+            color: #4299e1;
+        }
+
+        .module tr:hover {
+            background-color: #2d3748;
+        }
+
+        .form-row {
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .form-row label {
+            color: #4299e1;
+        }
+
+        .help {
+            color: #a0aec0;
+        }
+
+        .inline-related {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        .inline-related h3 {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        #content {
+            background: #1a202c;
+            border-color: #2d3748;
+        }
+
+        #content h1 {
+            color: #4299e1;
+            border-bottom-color: #3182ce;
+        }
+
+        .object-tools a {
+            background: linear-gradient(135deg, #3182ce, #2b6cb0);
+        }
+
+        .paginator {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        .paginator a, .paginator .this-page {
+            background: #1a202c;
+            color: #4299e1;
+            border-color: #4a5568;
+        }
+
+        .paginator a:hover {
+            background: #3182ce;
+            color: white;
+            border-color: #3182ce;
+        }
+
+        .paginator .this-page {
+            background: #3182ce;
+            color: white;
+            border-color: #3182ce;
+        }
+
+        .filter {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        .filter h2 {
+            color: #4299e1;
+        }
+
+        .filter select {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .filter select:focus {
+            border-color: #4299e1;
+        }
+
+        .searchbar {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        .searchbar input[type="text"] {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .searchbar input[type="text"]:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        input[type="text"], input[type="email"], input[type="password"], 
+        input[type="number"], textarea, select {
+            background: #1a202c;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, 
+        input[type="number"]:focus, textarea:focus, select:focus {
+            border-color: #4299e1;
+            outline: none;
+        }
+
+        .message.success {
+            background: #1a2e1a;
+            color: #68d391;
+            border-color: #48bb78;
+        }
+
+        .message.warning {
+            background: #2e2a1a;
+            color: #f6e05e;
+            border-color: #ecc94b;
+        }
+
+        .message.error {
+            background: #2e1a1a;
+            color: #fc8181;
+            border-color: #f56565;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>{{ post.title }}</h1>
+        <p class="post-author">by {{ post.user.username }}</p>
+        <p class="post-date">{{ post.created_at|date:"F d, Y g:i A" }}</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="post-detail">
+        <div class="post-detail-box">
+            <div class="post-header-box">
+                <h1>{{ post.title }}</h1>
+                <div class="post-author-info">
+                    <span class="author-name">by {{ post.user.username }}</span>
+                    <span class="post-date">{{ post.created_at|date:"F d, Y g:i A" }}</span>
+                </div>
+            </div>
+
+            <div class="post-content-box">
+                <p>{{ post.content|linebreaks }}</p>
+            </div>
+
+            <div class="post-meta-box">
+                <div class="trust-level-section">
+                    <span class="trust-label">Trust Level:</span>
+                    <span class="trust-score-badge">{{ post.trust_score }}</span>
+                </div>
+                {% if post.is_fake %}
+                <span class="badge badge-warning">⚠️ Flagged as Potential Fake</span>
+                {% endif %}
+                {% if post.verified_content %}
+                <span class="badge badge-success">✓ Verified Content</span>
+                {% endif %}
+            </div>
+
+            <div class="post-actions-box">
+                {% if user.is_authenticated %}
+                    <div class="action-buttons">
+                        <form method="post" action="{% url 'toggle_like' post.id %}" class="like-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-like {% if user_liked %}liked{% else %}not-liked{% endif %}">
+                                <span class="icon">{% if user_liked %}❤️{% else %}🤍{% endif %}</span>
+                                {% if user_liked %}Liked{% else %}Like{% endif %}
+                            </button>
+                        </form>
+                        {% if not post.verified_content %}
+                        <a href="{% url 'report_post' post.id %}" class="btn btn-report">
+                            <span class="icon">🚩</span> Report
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% if user.is_moderator %}
+                    <div class="moderator-actions">
+                        {% if not post.verified_content %}
+                        <a href="{% url 'verify_post' post.id %}" class="btn btn-verify">
+                            <span class="icon">✓</span> Verify Post
+                        </a>
+                        <a href="{% url 'moderator_delete_post' post.id %}" class="btn btn-delete">
+                            <span class="icon">🗑️</span> Delete Post
+                        </a>
+                        {% else %}
+                        <a href="{% url 'unverify_post' post.id %}" class="btn btn-unverify">
+                            <span class="icon">✕</span> Unverify Post
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% if post.user == user %}
+                    <div class="owner-actions">
+                        <a href="{% url 'update_post' post.pk %}" class="btn btn-edit">
+                            <span class="icon">✏️</span> Edit
+                        </a>
+                        <a href="{% url 'delete_post' post.pk %}" class="btn btn-delete">
+                            <span class="icon">🗑️</span> Delete
+                        </a>
+                    </div>
+                    {% endif %}
+                {% endif %}
+                <div class="post-stats">
+                    <span class="likes-count">
+                        <span class="icon">❤️</span> {{ likes_count }} likes
+                    </span>
+                    <span class="comments-count">
+                        <span class="icon">💬</span> {{ comments.count }} comments
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="comments-section-box">
+            <h2>Comments ({{ comments.count }})</h2>
+            
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_comment' post.id %}" class="comment-form-box">
+                {% csrf_token %}
+                <div class="comment-input-group">
+                    <textarea name="content" placeholder="Add a comment..." required></textarea>
+                    <button type="submit" class="btn btn-primary btn-comment">
+                        <span class="icon">💬</span> Post Comment
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div class="login-prompt">
+                <p><a href="{% url 'login' %}">Login</a> to add a comment.</p>
+            </div>
+            {% endif %}
+
+            <div class="comments-list-box">
+                {% for comment in comments %}
+                <div class="comment-box">
+                    <div class="comment-header">
+                        <strong>{{ comment.user.username }}</strong>
+                        <span class="comment-date">{{ comment.created_at|date:"F d, Y g:i A" }}</span>
+                    </div>
+                    <p>{{ comment.content }}</p>
+                </div>
+                {% empty %}
+                <div class="no-comments">
+                    <p>No comments yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <a href="{% url 'post_list' %}" class="btn btn-secondary btn-back">
+            <span class="icon">←</span> Back to Posts
+        </a>
+    </div>
+</div>
+{% endblock %}

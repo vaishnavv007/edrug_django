@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Rehabilitation Planning - E-Drug System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Rehabilitation Planning</h1>
+        <p>Assisting {{ user.username }} with recovery goals</p>
+        <a href="{% url 'high_risk_users' %}" class="btn btn-secondary">Back to High-Risk Users</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="rehabilitation-planning">
+        <div class="user-info">
+            <h2>Patient: {{ user.username }}</h2>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Role:</strong> {{ user.get_role_display }}</p>
+        </div>
+
+        <div class="add-goal">
+            <h3>Add Rehabilitation Goal</h3>
+            <form method="post">
+                {% csrf_token %}
+                <textarea name="goal_text" rows="3" placeholder="Enter a rehabilitation goal..." required></textarea>
+                <button type="submit" class="btn btn-primary">Add Goal</button>
+            </form>
+        </div>
+
+        <div class="existing-goals">
+            <h3>Rehabilitation Goals</h3>
+            {% if goals %}
+            <div class="goals-list">
+                {% for goal in goals %}
+                <div class="goal-item {% if goal.completed %}completed{% endif %}">
+                    <div class="goal-header">
+                        <h4>{{ goal.goal_text }}</h4>
+                        {% if goal.completed %}
+                        <span class="badge badge-success">Completed</span>
+                        {% endif %}
+                    </div>
+                    <div class="goal-progress">
+                        <progress value="{{ goal.progress_percentage }}" max="100"></progress>
+                        <span>{{ goal.progress_percentage }}%</span>
+                    </div>
+                    {% if not goal.completed %}
+                    <form method="post" action="{% url 'update_goal_progress' goal.id %}" class="update-progress">
+                        {% csrf_token %}
+                        <input type="number" name="progress_percentage" min="0" max="100" value="{{ goal.progress_percentage }}" required>
+                        <button type="submit" class="btn btn-secondary">Update Progress</button>
+                    </form>
+                    {% else %}
+                    <p class="completion-date">Completed on: {{ goal.completed_at|date:"F d, Y" }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No rehabilitation goals set yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="assessment-history">
+            <h3>Assessment History</h3>
+            {% if assessments %}
+            <div class="assessments-list">
+                {% for assessment in assessments %}
+                <div class="assessment-item">
+                    <div class="assessment-header">
+                        <span class="badge">Risk Score: {{ assessment.risk_score|floatformat:1 }}</span>
+                        <span class="badge">{{ assessment.sentiment }}</span>
+                    </div>
+                    <p class="assessment-date">{{ assessment.created_at|date:"F d, Y g:i A" }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No assessments found for this user.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

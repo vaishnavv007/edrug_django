@@ -1,0 +1,505 @@
+{% extends 'base.html' %}
+
+{% block title %}Rehabilitation Centers - E-Drug System{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Rehabilitation Centers Page Styles */
+.rehab-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    min-height: 100vh;
+}
+
+.page-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    padding: 60px 40px;
+    border-radius: 20px;
+    margin-bottom: 50px;
+    box-shadow: 0 15px 35px rgba(23, 162, 184, 0.3);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="medical" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M25 5 L25 45 L5 25 Z" fill="rgba(255,255,255,0.05)"/><path d="M45 5 L45 45 L25 25 Z" fill="rgba(255,255,255,0.05)"/><circle cx="25" cy="25" r="3" fill="rgba(255,255,255,0.08)"/><circle cx="75" cy="75" r="3" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="100" height="100" fill="url(%23medical)"/></svg>');
+    opacity: 0.3;
+}
+
+.page-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.page-header h1::before {
+    content: '🏥';
+    font-size: 2.5rem;
+}
+
+.page-header p {
+    font-size: 1.3rem;
+    opacity: 0.9;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.page-header .btn-primary {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    color: white;
+    text-decoration: none;
+}
+
+.center-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.center-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    padding: 35px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.center-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #17a2b8, #138496, #17a2b8);
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.center-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(23, 162, 184, 0.25);
+    border-color: rgba(23, 162, 184, 0.3);
+}
+
+.center-card h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    line-height: 1.3;
+    position: relative;
+    padding-left: 45px;
+    display: flex;
+    align-items: center;
+}
+
+.center-card h3::before {
+    content: '🏥';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.8rem;
+}
+
+.location {
+    font-size: 1.1rem;
+    color: #495057;
+    margin-bottom: 20px;
+    font-style: italic;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 4px solid #17a2b8;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.location::before {
+    content: '📍';
+    font-size: 1.2rem;
+}
+
+.contact-info {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contact-info p {
+    margin: 0;
+    font-size: 1rem;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(23, 162, 184, 0.05);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.contact-info p:hover {
+    background: rgba(23, 162, 184, 0.1);
+    transform: translateX(5px);
+}
+
+.contact-info p::before {
+    font-size: 1.1rem;
+}
+
+.contact-info p:nth-child(1)::before {
+    content: '📞';
+}
+
+.contact-info p:nth-child(2)::before {
+    content: '📧';
+}
+
+.center-description {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #495057;
+    margin-bottom: 25px;
+    flex-grow: 1;
+    font-style: italic;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 4px solid #17a2b8;
+}
+
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.card-actions .btn {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.card-actions .btn {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+}
+
+.card-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(23, 162, 184, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.card-actions .btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+}
+
+.card-actions .btn-secondary:hover {
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.card-actions .btn-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+}
+
+.card-actions .btn-danger:hover {
+    box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 2px dashed #e9ecef;
+    grid-column: 1 / -1;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 30px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.8rem;
+    color: #495057;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 40px;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.pagination a {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pagination a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(23, 162, 184, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.page-current {
+    padding: 10px 20px;
+    background: #f8f9fa;
+    color: #495057;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .rehab-container {
+        padding: 20px 15px;
+    }
+    
+    .page-header {
+        padding: 40px 25px;
+        margin-bottom: 30px;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .page-header p {
+        font-size: 1.1rem;
+    }
+    
+    .center-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .center-card {
+        padding: 25px;
+    }
+    
+    .center-card h3 {
+        font-size: 1.5rem;
+        padding-left: 35px;
+    }
+    
+    .center-card h3::before {
+        font-size: 1.5rem;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+    }
+    
+    .card-actions .btn {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .center-card {
+        padding: 20px;
+    }
+    
+    .center-card h3 {
+        font-size: 1.3rem;
+    }
+    
+    .location {
+        font-size: 1rem;
+        padding: 12px;
+    }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="rehab-container">
+    <!-- Enhanced Page Header -->
+    <div class="page-header">
+        <h1>Rehabilitation Centers</h1>
+        <p>Find verified rehabilitation centers near you</p>
+        {% if user.is_authenticated %}
+            {% if user.is_admin or user.is_expert %}
+            <a href="/rehab-centers/create/" class="btn-primary">
+                <span>➕</span>
+                Add Rehabilitation Center
+            </a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Enhanced Centers Grid -->
+    <div class="center-grid">
+        {% for center in centers %}
+        <div class="center-card">
+            <h3>{{ center.name }}</h3>
+            <p class="location">{{ center.address }}</p>
+            <div class="contact-info">
+                <p><strong>Phone:</strong> {{ center.phone }}</p>
+                <p><strong>Email:</strong> {{ center.email }}</p>
+            </div>
+            <p class="center-description">{{ center.description|truncatewords:15 }}</p>
+            <div class="card-actions">
+                <a href="{% url 'rehab_center_detail' center.pk %}" class="btn">
+                    <span>🏥</span>
+                    View Details
+                </a>
+                {% if user.is_authenticated %}
+                    {% if user.is_admin %}
+                    <a href="{% url 'edit_rehab_center' center.pk %}" class="btn btn-secondary">
+                        <span>✏️</span>
+                        Edit
+                    </a>
+                    <a href="{% url 'delete_rehab_center' center.pk %}" class="btn btn-danger">
+                        <span>🗑️</span>
+                        Delete
+                    </a>
+                    {% elif user.is_expert and center.created_by == user %}
+                    <a href="{% url 'edit_rehab_center' center.pk %}" class="btn btn-secondary">
+                        <span>✏️</span>
+                        Edit
+                    </a>
+                    <a href="{% url 'delete_rehab_center' center.pk %}" class="btn btn-danger">
+                        <span>🗑️</span>
+                        Delete
+                    </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🏥</div>
+            <h3>No Rehabilitation Centers Available</h3>
+            <p>Check back later for verified rehabilitation centers, or contact an administrator to add center information.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Enhanced Pagination -->
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">
+                <span>⬅️</span>
+                Previous
+            </a>
+        {% endif %}
+        <span class="page-current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">
+                Next
+                <span>➡️</span>
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

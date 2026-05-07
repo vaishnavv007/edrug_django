@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block title %}Create User - Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+.admin-create-user {
+    padding: 20px 0;
+}
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.form-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+.form-header h1 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+.form-header p {
+    margin: 0;
+    color: #666;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+.form-group .help-text {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #999;
+}
+.btn-submit {
+    background: #667eea;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+.btn-submit:hover {
+    background: #5568d3;
+}
+.btn-cancel {
+    background: #e0e0e0;
+    color: #333;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    margin-top: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background 0.3s ease;
+}
+.btn-cancel:hover {
+    background: #d0d0d0;
+}
+.error-message {
+    background: #ff6b6b;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+.role-info {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+.role-info h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 16px;
+}
+.role-info ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #666;
+}
+.role-info li {
+    margin-bottom: 5px;
+}
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <h1>Create User</h1>
+        <p>Create new admin, moderator, or expert users</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="admin-create-user">
+        <div class="form-container">
+            <div class="form-header">
+                <h1>{{ action }}</h1>
+                <p>Fill in the details below to create a new user with special privileges</p>
+            </div>
+
+            <div class="role-info">
+                <h3>Role Information:</h3>
+                <ul>
+                    <li><strong>Admin:</strong> Full system access, can create other admins/moderators/experts</li>
+                    <li><strong>Moderator:</strong> Can moderate content, view reports, manage posts</li>
+                    <li><strong>Expert:</strong> Can create verified posts, view high-risk users, provide guidance</li>
+                </ul>
+            </div>
+
+            {% if form.errors %}
+            <div class="error-message">
+                <strong>Error:</strong> Please correct the errors below.
+                {% for field, errors in form.errors.items %}
+                <br>{{ field }}: {{ errors|join:", " }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">Username *</label>
+                    <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" required>
+                    <div class="help-text">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email *</label>
+                    <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" required>
+                    <div class="help-text">Required. A valid email address.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                    <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                    <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.role.id_for_label }}">Role *</label>
+                    <select name="{{ form.role.name }}" id="{{ form.role.id_for_label }}" required>
+                        <option value="">Select a role...</option>
+                        {% for value, label in form.ADMIN_ROLE_CHOICES %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="help-text">Required. Select the role for this user.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}">Password *</label>
+                    <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" required>
+                    <div class="help-text">Required. Enter a strong password.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}">Confirm Password *</label>
+                    <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" required>
+                    <div class="help-text">Required. Enter the same password for confirmation.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.phone.id_for_label }}">Phone</label>
+                    <input type="text" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}">
+                    <div class="help-text">Optional. Contact phone number.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.is_verified_expert.id_for_label }}">
+                        <input type="checkbox" name="{{ form.is_verified_expert.name }}" id="{{ form.is_verified_expert.id_for_label }}">
+                        Verify Expert (only for Expert role)
+                    </label>
+                    <div class="help-text">Check this box only if creating an Expert role user. This marks them as verified.</div>
+                </div>
+
+                <button type="submit" class="btn-submit">Create User</button>
+                <a href="{% url 'dashboard' %}" class="btn-cancel">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

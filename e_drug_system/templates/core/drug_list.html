@@ -1,0 +1,525 @@
+{% extends 'base.html' %}
+
+{% block title %}Drug Information - E-Drug System{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Drug Information Page Styles */
+.drug-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    min-height: 100vh;
+}
+
+.page-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 60px 40px;
+    border-radius: 20px;
+    margin-bottom: 50px;
+    box-shadow: 0 15px 35px rgba(40, 167, 69, 0.3);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="medical" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M25 5 L25 45 L5 25 Z" fill="rgba(255,255,255,0.05)"/><path d="M45 5 L45 45 L25 25 Z" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23medical)"/></svg>');
+    opacity: 0.3;
+}
+
+.page-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-header p {
+    font-size: 1.3rem;
+    opacity: 0.9;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.page-header .btn-primary {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    color: white;
+    text-decoration: none;
+}
+
+.drug-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.drug-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    padding: 35px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.drug-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #28a745, #20c997, #28a745);
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+}
+
+.drug-card.category-opioid::before {
+    background: linear-gradient(90deg, #dc3545, #c82333, #dc3545);
+}
+
+.drug-card.category-stimulant::before {
+    background: linear-gradient(90deg, #ffc107, #e0a800, #ffc107);
+}
+
+.drug-card.category-depressant::before {
+    background: linear-gradient(90deg, #6f42c1, #5a32a3, #6f42c1);
+}
+
+.drug-card.category-hallucinogen::before {
+    background: linear-gradient(90deg, #e83e8c, #dc3545, #e83e8c);
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.drug-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(40, 167, 69, 0.25);
+    border-color: rgba(40, 167, 69, 0.3);
+}
+
+.drug-card.category-opioid:hover {
+    box-shadow: 0 20px 40px rgba(220, 53, 69, 0.25);
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+.drug-card.category-stimulant:hover {
+    box-shadow: 0 20px 40px rgba(255, 193, 7, 0.25);
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.drug-card.category-depressant:hover {
+    box-shadow: 0 20px 40px rgba(111, 66, 193, 0.25);
+    border-color: rgba(111, 66, 193, 0.3);
+}
+
+.drug-card.category-hallucinogen:hover {
+    box-shadow: 0 20px 40px rgba(232, 62, 140, 0.25);
+    border-color: rgba(232, 62, 140, 0.3);
+}
+
+.drug-card h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    line-height: 1.3;
+    position: relative;
+    padding-left: 45px;
+}
+
+.drug-card h3::before {
+    content: '💊';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.8rem;
+}
+
+.drug-card.category-opioid h3::before {
+    content: '⚠️';
+}
+
+.drug-card.category-stimulant h3::before {
+    content: '⚡';
+}
+
+.drug-card.category-depressant h3::before {
+    content: '😴';
+}
+
+.drug-card.category-hallucinogen h3::before {
+    content: '🌈';
+}
+
+.drug-card .category {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    color: white;
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.drug-card.category-opioid .category {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+.drug-card.category-stimulant .category {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+}
+
+.drug-card.category-depressant .category {
+    background: linear-gradient(135deg, #6f42c1, #5a32a3);
+}
+
+.drug-card.category-hallucinogen .category {
+    background: linear-gradient(135deg, #e83e8c, #dc3545);
+}
+
+.drug-card p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #495057;
+    margin-bottom: 25px;
+    flex-grow: 1;
+    font-style: italic;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #28a745;
+}
+
+.drug-card.category-opioid p {
+    border-left-color: #dc3545;
+}
+
+.drug-card.category-stimulant p {
+    border-left-color: #ffc107;
+}
+
+.drug-card.category-depressant p {
+    border-left-color: #6f42c1;
+}
+
+.drug-card.category-hallucinogen p {
+    border-left-color: #e83e8c;
+}
+
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.card-actions .btn {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-actions .btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.card-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.card-actions .btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+}
+
+.card-actions .btn-secondary:hover {
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.card-actions .btn-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+}
+
+.card-actions .btn-danger:hover {
+    box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 2px dashed #e9ecef;
+    grid-column: 1 / -1;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 30px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.8rem;
+    color: #495057;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 40px;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.pagination a {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pagination a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.page-current {
+    padding: 10px 20px;
+    background: #f8f9fa;
+    color: #495057;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .drug-container {
+        padding: 20px 15px;
+    }
+    
+    .page-header {
+        padding: 40px 25px;
+        margin-bottom: 30px;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .page-header p {
+        font-size: 1.1rem;
+    }
+    
+    .drug-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .drug-card {
+        padding: 25px;
+    }
+    
+    .drug-card h3 {
+        font-size: 1.5rem;
+        padding-left: 40px;
+    }
+    
+    .drug-card h3::before {
+        font-size: 1.5rem;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+    }
+    
+    .card-actions .btn {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .drug-card {
+        padding: 20px;
+    }
+    
+    .drug-card h3 {
+        font-size: 1.3rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="drug-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Drug Information</h1>
+        <p>Comprehensive information about various substances for educational purposes</p>
+        {% if user.is_authenticated %}
+            {% if user.is_admin or user.is_expert %}
+            <a href="{% url 'create_drug' %}" class="btn-primary">
+                <span>➕</span>
+                Add Drug Information
+            </a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Drug Grid -->
+    <div class="drug-grid">
+        {% for drug in drugs %}
+        <div class="drug-card {% if drug.category %}category-{{ drug.category|lower }}{% endif %}">
+            <h3>{{ drug.name }}</h3>
+            {% if drug.category %}
+                <p class="category">{{ drug.category }}</p>
+            {% endif %}
+            <p>{{ drug.description|truncatewords:20 }}</p>
+            <div class="card-actions">
+                <a href="{% url 'drug_detail' drug.pk %}" class="btn">
+                    <span>📖</span>
+                    View Details
+                </a>
+                {% if user.is_authenticated %}
+                    {% if user.is_admin %}
+                    <a href="{% url 'edit_drug' drug.pk %}" class="btn btn-secondary">
+                        <span>✏️</span>
+                        Edit
+                    </a>
+                    <a href="{% url 'delete_drug' drug.pk %}" class="btn btn-danger">
+                        <span>🗑️</span>
+                        Delete
+                    </a>
+                    {% elif user.is_expert and drug.created_by == user %}
+                    <a href="{% url 'edit_drug' drug.pk %}" class="btn btn-secondary">
+                        <span>✏️</span>
+                        Edit
+                    </a>
+                    <a href="{% url 'delete_drug' drug.pk %}" class="btn btn-danger">
+                        <span>🗑️</span>
+                        Delete
+                    </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-state-icon">💊</div>
+            <h3>No Drug Information Available</h3>
+            <p>Check back later for comprehensive information about various substances, or contact an administrator to add content.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Enhanced Pagination -->
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">
+                <span>⬅️</span>
+                Previous
+            </a>
+        {% endif %}
+        <span class="page-current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">
+                Next
+                <span>➡️</span>
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Publish Research Paper{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-file-alt"></i> Publish Research Paper</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Paper Title *</label>
+                                    <input type="text" class="form-control" id="title" name="title" required 
+                                           placeholder="Enter the full title of your research paper">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="authors" class="form-label">Authors *</label>
+                                    <input type="text" class="form-control" id="authors" name="authors" required 
+                                           placeholder="e.g., John Doe, Jane Smith, Dr. Robert Johnson">
+                                    <div class="form-text">Enter all authors separated by commas</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="abstract" class="form-label">Abstract *</label>
+                                    <textarea class="form-control" id="abstract" name="abstract" rows="4" required 
+                                              placeholder="Provide a concise summary of your research (150-300 words)..."></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Full Content *</label>
+                                    <textarea class="form-control" id="content" name="content" rows="15" required 
+                                              placeholder="Paste the full text of your research paper here..."></textarea>
+                                    <div class="form-text">You can paste the complete paper content including methodology, results, discussion, and conclusions.</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="journal" class="form-label">Journal</label>
+                                    <input type="text" class="form-control" id="journal" name="journal" 
+                                           placeholder="Journal name (if published)">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="publication_date" class="form-label">Publication Date</label>
+                                    <input type="date" class="form-control" id="publication_date" name="publication_date">
+                                    <div class="form-text">If previously published</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="doi" class="form-label">DOI</label>
+                                    <input type="url" class="form-control" id="doi" name="doi" 
+                                           placeholder="https://doi.org/...">
+                                    <div class="form-text">Digital Object Identifier (if available)</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="keywords" class="form-label">Keywords</label>
+                                    <input type="text" class="form-control" id="keywords" name="keywords" 
+                                           placeholder="addiction, recovery, treatment, therapy">
+                                    <div class="form-text">Enter keywords separated by commas</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="pdf_file" class="form-label">PDF File</label>
+                                    <input type="file" class="form-control" id="pdf_file" name="pdf_file" 
+                                           accept=".pdf">
+                                    <div class="form-text">Upload PDF version of the paper (optional)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'research_paper_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Publish Paper
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Publishing Guidelines</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Before submitting your paper:</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-check text-success"></i> Ensure your research is relevant to addiction and recovery</li>
+                        <li class="mb-2"><i class="fas fa-check text-success"></i> Include proper citations and references</li>
+                        <li class="mb-2"><i class="fas fa-check text-success"></i> Verify all data and findings are accurate</li>
+                        <li class="mb-2"><i class="fas fa-check text-success"></i> Obtain consent from all co-authors</li>
+                        <li class="mb-2"><i class="fas fa-check text-success"></i> Follow ethical research standards</li>
+                        <li class="mb-2"><i class="fas fa-check text-success"></i> Ensure the abstract accurately reflects the content</li>
+                    </ul>
+
+                    <h6 class="mt-3">Paper Format:</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-file-alt text-info"></i> Title should be clear and descriptive</li>
+                        <li class="mb-2"><i class="fas fa-users text-info"></i> List all authors in order of contribution</li>
+                        <li class="mb-2"><i class="fas fa-compress-alt text-info"></i> Abstract should be 150-300 words</li>
+                        <li class="mb-2"><i class="fas fa-align-left text-info"></i> Use clear headings and structure</li>
+                        <li class="mb-2"><i class="fas fa-tags text-info"></i> Include relevant keywords for searchability</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
