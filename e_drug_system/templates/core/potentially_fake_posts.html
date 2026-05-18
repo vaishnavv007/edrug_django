@@ -1,0 +1,422 @@
+{% extends 'base.html' %}
+
+{% block title %}Potentially Fake Posts - E-Drug System{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Potentially Fake Posts Page Styles */
+.potentially-fake-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.potentially-fake-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(255,255,255,0.03) 100%);
+    pointer-events: none;
+}
+
+.page-header {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+}
+
+.page-header h1 {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.page-header p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin: 0 0 2rem 0;
+}
+
+.potentially-fake-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.potentially-fake-posts {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.posts-header {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.posts-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.posts-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.posts-list {
+    padding: 2rem;
+}
+
+.post-item {
+    background: white;
+    border: 2px solid #f39c12;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.post-item::before {
+    content: '⚠️ POTENTIALLY FAKE';
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 0 0 0 15px;
+    z-index: 1;
+}
+
+.post-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(243, 156, 18, 0.2);
+    border-color: #e67e22;
+}
+
+.post-header {
+    margin-bottom: 1.5rem;
+    padding-right: 100px;
+}
+
+.post-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.post-meta {
+    display: flex;
+    gap: 1.5rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.post-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.post-meta-item strong {
+    color: #333;
+}
+
+.post-content {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #f39c12;
+    line-height: 1.6;
+    color: #555;
+}
+
+.post-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #666;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin: 0 0 1rem 0;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .potentially-fake-page {
+        padding: 1rem 0;
+    }
+    
+    .page-header {
+        padding: 1.5rem 0;
+        margin-bottom: 1rem;
+    }
+    
+    .page-header .container {
+        padding: 0 1rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .potentially-fake-container {
+        padding: 0 1rem;
+    }
+    
+    .posts-list {
+        padding: 1rem;
+    }
+    
+    .post-item {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .post-header {
+        padding-right: 80px;
+    }
+    
+    .post-title {
+        font-size: 1.2rem;
+    }
+    
+    .post-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .post-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .posts-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .post-item {
+        padding: 1rem;
+    }
+    
+    .post-item::before {
+        font-size: 0.65rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* Animation keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.post-item {
+    animation: fadeInUp 0.6s ease-out;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="potentially-fake-page">
+    <div class="page-header">
+        <div class="container">
+            <h1>⚠️ Potentially Fake Posts</h1>
+            <p>Review posts flagged by our AI system as potentially containing misinformation</p>
+            <a href="{% url 'moderator_dashboard' %}" class="btn btn-secondary">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="potentially-fake-container">
+        <div class="potentially-fake-posts">
+            <div class="posts-header">
+                <h2>Posts Requiring Review</h2>
+            </div>
+            
+            <div class="posts-list">
+                {% if posts %}
+                    {% for post in posts %}
+                    <div class="post-item">
+                        <div class="post-header">
+                            <h3 class="post-title">{{ post.title }}</h3>
+                            <div class="post-meta">
+                                <div class="post-meta-item">
+                                    <strong>Author:</strong> {{ post.user.username }}
+                                </div>
+                                <div class="post-meta-item">
+                                    <strong>Created:</strong> {{ post.created_at|date:"F d, Y g:i A" }}
+                                </div>
+                                <div class="post-meta-item">
+                                    <strong>Likes:</strong> {{ post.like_set.count }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="post-content">
+                            {{ post.content|truncatewords:50 }}
+                        </div>
+                        
+                        <div class="post-actions">
+                            <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">
+                                👁️ View Full Post
+                            </a>
+                            <a href="{% url 'mark_post_fake' post.id %}" class="btn btn-warning">
+                                ⚠️ Mark as Fake
+                            </a>
+                            <a href="{% url 'moderator_delete_post' post.id %}" class="btn btn-danger">
+                                🗑️ Delete Post
+                            </a>
+                            <a href="{% url 'moderator_posts' %}" class="btn btn-secondary">
+                                ✅ Approve Post
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✅</div>
+                        <h3>No Potentially Fake Posts</h3>
+                        <p>Great! There are currently no posts flagged as potentially fake.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

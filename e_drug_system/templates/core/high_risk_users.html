@@ -2,6 +2,365 @@
 
 {% block title %}High-Risk Users - E-Drug System{% endblock %}
 
+{% block extra_css %}
+<style>
+/* High-Risk Users Page Styles */
+.high-risk-users {
+    padding: 30px 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Page Header */
+.page-header {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    padding: 60px 0;
+    margin-bottom: 50px;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.page-header .container {
+    position: relative;
+    z-index: 1;
+}
+
+.page-header h1 {
+    margin: 0 0 15px 0;
+    font-size: 48px;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.page-header h1::before {
+    content: '⚠️';
+    font-size: 42px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.page-header p {
+    margin: 0 0 25px 0;
+    opacity: 0.95;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+/* Section Headers */
+.high-risk-users h2 {
+    color: #2c3e50;
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #e74c3c;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.high-risk-users h2:first-of-type::before {
+    content: '👥';
+}
+
+.high-risk-users h2:last-of-type::before {
+    content: '📊';
+}
+
+/* Users List */
+.users-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+/* User Cards */
+.user-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border: 2px solid #e74c3c;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(231, 76, 60, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.user-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.user-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(231, 76, 60, 0.25);
+    border-color: #c0392b;
+}
+
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.user-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.user-details {
+    color: #7f8c8d;
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 25px;
+}
+
+.user-details strong {
+    color: #34495e;
+    font-weight: 600;
+}
+
+.user-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Assessments List */
+.assessments-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 25px;
+}
+
+.assessment-item {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
+    border: 2px solid #e74c3c;
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.assessment-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(231, 76, 60, 0.2);
+}
+
+.assessment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.assessment-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 20px;
+    font-weight: 600;
+    flex: 1;
+}
+
+.assessment-date {
+    color: #7f8c8d;
+    font-size: 14px;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.assessment-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 2px;
+}
+
+.badge-danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.badge:not(.badge-danger) {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    color: white;
+    box-shadow: 0 2px 6px rgba(149, 165, 166, 0.3);
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d 0%, #707b7c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4);
+}
+
+/* Empty State */
+.high-risk-users > p {
+    text-align: center;
+    padding: 80px 40px;
+    color: #95a5a6;
+    font-size: 18px;
+    font-style: italic;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    border: 3px dashed #dee2e6;
+    margin: 40px 0;
+}
+
+.high-risk-users > p::before {
+    content: '✅ ';
+    font-size: 24px;
+    margin-right: 8px;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 40px 0;
+    }
+    
+    .page-header h1 {
+        font-size: 36px;
+    }
+    
+    .page-header p {
+        font-size: 18px;
+    }
+    
+    .high-risk-users h2 {
+        font-size: 28px;
+    }
+    
+    .users-list {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .assessments-list {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .user-card, .assessment-item {
+        padding: 20px;
+    }
+    
+    .user-header, .assessment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .user-actions, .assessment-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
     <div class="container">

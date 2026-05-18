@@ -4,32 +4,134 @@
 
 {% block extra_css %}
 <style>
+/* Dashboard Header Styles */
+.dashboard {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(255,255,255,0.03) 100%);
+    pointer-events: none;
+}
+
+.dashboard-header {
+    padding: 3rem 0 2rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.greeting h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 0.5rem 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    animation: fadeInUp 0.6s ease-out 0.1s forwards;
+    opacity: 0;
+}
+
+.role-badge-wrapper {
+    animation: fadeInUp 0.6s ease-out 0.2s forwards;
+    opacity: 0;
+}
+
+.role-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.role-badge:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Dashboard Container */
+.dashboard .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+}
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    gap: 20px;
-    margin-top: 30px;
+    gap: 2rem;
+    margin-top: 2rem;
+    animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    opacity: 0;
 }
 
 .dashboard-card {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
 .dashboard-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .card-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 20px;
+    padding: 1.5rem;
     display: flex;
     align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    pointer-events: none;
 }
 
 .header-left {
@@ -39,37 +141,64 @@
 }
 
 .icon-wrapper {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 20px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
 }
 
 .icon-wrapper.primary {
     background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .icon-wrapper.success {
     background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .icon-wrapper.danger {
     background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .icon-wrapper.warning {
     background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .icon-wrapper.info {
     background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.icon-wrapper:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
 }
 
 .card-content {
-    padding: 25px;
+    padding: 2rem;
+    background: white;
 }
 
 .action-list {
@@ -79,84 +208,106 @@
 }
 
 .action-list li {
-    margin-bottom: 12px;
+    margin-bottom: 0.75rem;
 }
 
 .action-list a {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
     text-decoration: none;
-    color: #333;
-    border-radius: 8px;
+    color: #374151;
+    border-radius: 12px;
     transition: all 0.3s ease;
+    font-weight: 500;
+    border: 1px solid transparent;
+    background: #f9fafb;
 }
 
 .action-list a:hover {
-    background: #f8f9fa;
-    color: #007bff;
-    transform: translateX(5px);
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #667eea;
+    transform: translateX(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #e5e7eb;
 }
 
 .action-icon {
-    font-size: 16px;
-    width: 20px;
+    font-size: 18px;
+    width: 24px;
     text-align: center;
+    transition: all 0.3s ease;
+}
+
+.action-list a:hover .action-icon {
+    transform: scale(1.2);
 }
 
 .profile-details {
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
 }
 
 .profile-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f3f4f6;
+    transition: all 0.3s ease;
 }
 
 .profile-item:last-child {
     border-bottom: none;
 }
 
+.profile-item:hover {
+    background: #f9fafb;
+    margin: 0 -1rem;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
 .profile-item .label {
     font-weight: 600;
-    color: #666;
+    color: #6b7280;
+    font-size: 0.95rem;
 }
 
 .profile-item .value {
-    color: #333;
+    color: #1f2937;
     text-align: right;
+    font-weight: 500;
 }
 
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary {
-    background: #007bff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
 }
 
 .btn-primary:hover {
-    background: #0056b3;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
 }
 
 .btn-edit-profile {
     width: 100%;
     justify-content: center;
+    margin-top: 1rem;
 }
 
 /* Featured Actions - Make important items more noticeable */
@@ -166,11 +317,12 @@
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border: 2px solid transparent;
     transform: translateX(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .featured-action:hover {
-    transform: translateX(8px) scale(1.02);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(12px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .featured-action::before {
@@ -181,6 +333,11 @@
     bottom: 0;
     width: 4px;
     border-radius: 2px 0 0 2px;
+    transition: width 0.3s ease;
+}
+
+.featured-action:hover::before {
+    width: 6px;
 }
 
 /* Messages Action - Blue theme */
@@ -288,18 +445,145 @@
     font-size: 18px;
 }
 
+/* Expert Action - Gold theme to highlight priority */
+.expert-action {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border-color: #ffc107;
+    color: #f57c00;
+    font-weight: 700;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.expert-action:hover {
+    background: linear-gradient(135deg, #ffecb3 0%, #ffe082 100%);
+    color: #e65100;
+    transform: translateX(12px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+}
+
+.expert-action::before {
+    background: linear-gradient(180deg, #ffc107 0%, #ff9800 100%);
+    width: 6px;
+}
+
+.expert-action:hover::before {
+    width: 8px;
+}
+
+.expert-action .action-icon {
+    color: #ff9800;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Expert Tools Card Styling */
+.expert-tools-card {
+    grid-column: 1 / -1;
+    order: -2; /* Expert tools appear first */
+}
+
+.expert-tools-card .card-header {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+}
+
+.expert-tools-card .icon-wrapper.info {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Regular Actions Card Styling */
+.regular-actions-card {
+    order: -1; /* Regular actions appear second */
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
+    .dashboard-header {
+        padding: 2rem 0 1.5rem 0;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .greeting h1 {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .dashboard .container {
+        padding: 0 1rem;
+    }
+    
     .dashboard-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .card-header {
+        padding: 1.25rem;
+    }
+    
+    .card-content {
+        padding: 1.5rem;
+    }
+    
+    .action-list a {
+        padding: 0.875rem 1rem;
+    }
+    
+    .icon-wrapper {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
     }
 }
 
 /* Admin, Moderator, Expert cards - make them span full width */
-.admin-card,
+.admin-card {
+    grid-column: 1 / -1;
+    order: -1; /* Admin tools appear first for admin users */
+}
+
 .moderator-card,
 .expert-card {
     grid-column: 1 / -1;
+}
+
+/* Animation keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced floating animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Add subtle floating animation to role badge */
+.role-badge {
+    animation: float 3s ease-in-out infinite;
 }
 </style>
 {% endblock %}
@@ -320,7 +604,53 @@
         </div>
 
         <div class="dashboard-grid">
-            <div class="dashboard-card quick-actions-card">
+            {% if user.is_admin %}
+            <div class="dashboard-card admin-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <div class="icon-wrapper danger">
+                            <span class="icon">🔧</span>
+                        </div>
+                        <h3>Admin Tools</h3>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <ul class="action-list">
+                        <li><a href="{% url 'admin_create_user' %}"><span class="action-icon">👤</span> Create Admin/Moderator/Expert</a></li>
+                        <li><a href="{% url 'admin_assessment_list' %}"><span class="action-icon">📋</span> Manage Assessments</a></li>
+                        <li><a href="{% url 'monitor_user_progress' %}"><span class="action-icon">📈</span> Monitor User Progress</a></li>
+                        <li><a href="/admin/"><span class="action-icon">⚙️</span> Admin Panel</a></li>
+                        <li><a href="{% url 'drug_list' %}"><span class="action-icon">💊</span> Manage Drugs</a></li>
+                        <li><a href="{% url 'rehab_centers' %}"><span class="action-icon">🏥</span> Verify Centers</a></li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user.is_expert %}
+            <!-- Expert Tools Box -->
+            <div class="dashboard-card expert-tools-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <div class="icon-wrapper info">
+                            <span class="icon">🎓</span>
+                        </div>
+                        <h3>Expert Tools</h3>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <ul class="action-list">
+                        <li><a href="{% url 'expert_dashboard' %}" class="featured-action expert-action"><span class="action-icon">📊</span> Expert Dashboard</a></li>
+                        <li><a href="{% url 'create_verified_post' %}" class="featured-action expert-action"><span class="action-icon">✓</span> Create Verified Post</a></li>
+                        <li><a href="{% url 'high_risk_users' %}" class="featured-action expert-action"><span class="action-icon">⚠️</span> View High-Risk Users</a></li>
+                        <li><a href="{% url 'monitor_user_progress' %}" class="featured-action expert-action"><span class="action-icon">📈</span> Monitor User Progress</a></li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Regular Actions Box -->
+            <div class="dashboard-card regular-actions-card">
                 <div class="card-header">
                     <div class="header-left">
                         <div class="icon-wrapper primary">
@@ -360,12 +690,12 @@
                             <span class="value">{{ user.email }}</span>
                         </div>
                         <div class="profile-item">
-                            <span class="label">Username</span>
-                            <span class="value">{{ user.username }}</span>
+                            <span class="label">First Name</span>
+                            <span class="value">{{ user.first_name }}</span>
                         </div>
                         <div class="profile-item">
-                            <span class="label">Member Since</span>
-                            <span class="value">{{ user.created_at|date:"F d, Y" }}</span>
+                            <span class="label">Last Name</span>
+                            <span class="value">{{ user.last_name }}</span>
                         </div>
                         {% if user.phone %}
                         <div class="profile-item">
@@ -380,30 +710,7 @@
                 </div>
             </div>
 
-            {% if user.is_admin %}
-            <div class="dashboard-card admin-card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <div class="icon-wrapper danger">
-                            <span class="icon">🔧</span>
-                        </div>
-                        <h3>Admin Tools</h3>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <ul class="action-list">
-                        <li><a href="{% url 'admin_create_user' %}"><span class="action-icon">👤</span> Create Admin/Moderator/Expert</a></li>
-                        <li><a href="{% url 'admin_assessment_list' %}"><span class="action-icon">📋</span> Manage Assessments</a></li>
-                        <li><a href="{% url 'monitor_user_progress' %}"><span class="action-icon">📈</span> Monitor User Progress</a></li>
-                        <li><a href="/admin/"><span class="action-icon">⚙️</span> Admin Panel</a></li>
-                        <li><a href="{% url 'drug_list' %}"><span class="action-icon">💊</span> Manage Drugs</a></li>
-                        <li><a href="{% url 'rehab_centers' %}"><span class="action-icon">🏥</span> Verify Centers</a></li>
-                    </ul>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if user.is_moderator %}
+            {% if user.is_moderator and not user.is_admin %}
             <div class="dashboard-card moderator-card">
                 <div class="card-header">
                     <div class="header-left">
@@ -418,27 +725,6 @@
                         <li><a href="{% url 'moderator_dashboard' %}"><span class="action-icon">📊</span> Moderator Dashboard</a></li>
                         <li><a href="{% url 'reported_posts' %}"><span class="action-icon">🚩</span> Review Reports</a></li>
                         <li><a href="{% url 'send_message' %}"><span class="action-icon">✉️</span> Send Message</a></li>
-                    </ul>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if user.is_expert %}
-            <div class="dashboard-card expert-card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <div class="icon-wrapper info">
-                            <span class="icon">🎓</span>
-                        </div>
-                        <h3>Expert Tools</h3>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <ul class="action-list">
-                        <li><a href="{% url 'expert_dashboard' %}"><span class="action-icon">📊</span> Expert Dashboard</a></li>
-                        <li><a href="{% url 'create_verified_post' %}"><span class="action-icon">✓</span> Create Verified Post</a></li>
-                        <li><a href="{% url 'high_risk_users' %}"><span class="action-icon">⚠️</span> View High-Risk Users</a></li>
-                        <li><a href="{% url 'monitor_user_progress' %}"><span class="action-icon">📈</span> Monitor User Progress</a></li>
                     </ul>
                 </div>
             </div>
@@ -1209,7 +1495,12 @@
 // Toggle popup windows
 function toggleChatPopup() {
     const popup = document.getElementById('chat-popup');
-    popup.classList.toggle('active');
+    const isActive = popup.classList.toggle('active');
+    
+    // Load chat history when opening the popup
+    if (isActive) {
+        loadChatHistory();
+    }
 }
 
 // Enhanced Chat functionality
@@ -1252,22 +1543,30 @@ function sendChatMessage() {
     // Show typing indicator
     showTypingIndicator();
     
-    // Simulate AI response with delay
-    setTimeout(() => {
+    // Send message to real AI backend
+    fetch('/ai/chatbot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: `message=${encodeURIComponent(message)}`
+    })
+    .then(response => response.json())
+    .then(data => {
         hideTypingIndicator();
         
         const aiMessage = document.createElement('div');
         aiMessage.className = 'ai-message';
         
-        // Generate contextual response
-        const response = generateAIResponse(message);
+        const response = data.response || 'Sorry, I encountered an error. Please try again.';
         
         aiMessage.innerHTML = `
             <div class="message-avatar">
                 <span>🤖</span>
             </div>
             <div class="message-content">
-                <div class="message-text">${response}</div>
+                <div class="message-text">${escapeHtml(response)}</div>
                 <div class="message-time">Just now</div>
             </div>
         `;
@@ -1282,35 +1581,82 @@ function sendChatMessage() {
         
         // Focus input
         input.focus();
-    }, 1500 + Math.random() * 1000); // Random delay for realism
+    })
+    .catch(error => {
+        hideTypingIndicator();
+        
+        const aiMessage = document.createElement('div');
+        aiMessage.className = 'ai-message';
+        
+        aiMessage.innerHTML = `
+            <div class="message-avatar">
+                <span>🤖</span>
+            </div>
+            <div class="message-content">
+                <div class="message-text">Sorry, I'm having trouble connecting right now. Please try again in a moment.</div>
+                <div class="message-time">Just now</div>
+            </div>
+        `;
+        chatMessages.appendChild(aiMessage);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Re-enable send button
+        sendBtn.disabled = false;
+        sendBtn.style.opacity = '1';
+        
+        console.error('Chat error:', error);
+    });
 }
 
-function generateAIResponse(userMessage) {
-    const responses = [
-        "I understand what you're saying. Let me help you with that.",
-        "That's interesting! Tell me more about it.",
-        "I can definitely assist you with this. Here's what I suggest...",
-        "Thanks for sharing that. How can I help you further?",
-        "I see what you mean. Let me provide some guidance.",
-        "That's a great question! Here's my perspective...",
-        "I appreciate you reaching out. I'm here to help!",
-        "Let me think about that and give you the best advice."
-    ];
-    
-    // Add contextual responses based on keywords
-    const lowerMessage = userMessage.toLowerCase();
-    if (lowerMessage.includes('help')) {
-        return "I'm here to help! What specific assistance do you need?";
-    } else if (lowerMessage.includes('thank')) {
-        return "You're very welcome! I'm glad I could assist you.";
-    } else if (lowerMessage.includes('drug') || lowerMessage.includes('medicine')) {
-        return "I can help you with drug information and guidance. What would you like to know?";
-    } else if (lowerMessage.includes('recovery') || lowerMessage.includes('rehab')) {
-        return "Recovery is a journey, and I'm here to support you. What aspect would you like to discuss?";
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
-    
-    return responses[Math.floor(Math.random() * responses.length)];
+    return cookieValue;
 }
+
+// Load chat history when popup opens
+function loadChatHistory() {
+    fetch('/ai/chatbot/')
+        .then(response => response.text())
+        .then(html => {
+            // Extract chat history from the response (simplified approach)
+            // In production, you might want to create a dedicated API endpoint
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const chatHistoryElements = doc.querySelectorAll('.chat-message');
+            
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // Clear existing messages except the initial greeting
+            chatMessages.innerHTML = `
+                <div class="ai-message">
+                    <div class="message-avatar">
+                        <span>🤖</span>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">Hello! I'm your AI assistant. How can I help you today?</div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Error loading chat history:', error);
+        });
+}
+
 
 function escapeHtml(text) {
     const div = document.createElement('div');
@@ -1348,19 +1694,37 @@ function handleTyping() {
 
 function clearChat() {
     if (confirm('Are you sure you want to clear the chat history?')) {
-        const chatMessages = document.getElementById('chat-messages');
-        chatMessages.innerHTML = `
-            <div class="ai-message">
-                <div class="message-avatar">
-                    <span>🤖</span>
-                </div>
-                <div class="message-content">
-                    <div class="message-text">Chat cleared. How can I help you today?</div>
-                    <div class="message-time">Just now</div>
-                </div>
-            </div>
-        `;
-        showNotification('Chat cleared successfully!');
+        fetch('/ai/chatbot/clear/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = `
+                    <div class="ai-message">
+                        <div class="message-avatar">
+                            <span>🤖</span>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text">Chat cleared. How can I help you today?</div>
+                            <div class="message-time">Just now</div>
+                        </div>
+                    </div>
+                `;
+                showNotification('Chat cleared successfully!');
+            } else {
+                showNotification('Failed to clear chat history. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error clearing chat:', error);
+            showNotification('Failed to clear chat history. Please try again.');
+        });
     }
 }
 

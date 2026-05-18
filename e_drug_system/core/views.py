@@ -1186,6 +1186,9 @@ def create_verified_post(request):
             post = form.save(commit=False)
             post.user = request.user
             post.verified_content = True
+            post.trust_score = 100.0  # Maximum trust score for verified expert posts
+            post.potentially_fake = False
+            post.fake_confidence = 0.0  # No fake confidence for verified posts
             post.save()
             messages.success(request, 'Verified educational post created successfully.')
             return redirect('post_detail', pk=post.pk)
