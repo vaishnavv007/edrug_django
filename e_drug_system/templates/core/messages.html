@@ -668,6 +668,13 @@
         padding: 15px;
     }
 }
+
+/* Desktop - ensure sidebar is always visible */
+@media (min-width: 769px) {
+    .conversations-sidebar {
+        display: flex !important;
+    }
+}
 </style>
 {% endblock %}
 
@@ -1155,6 +1162,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add search functionality
     document.getElementById('search-conversations').addEventListener('input', searchConversationsAndUsers);
+    
+    // Check for auto-open user parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoOpenUserId = urlParams.get('user');
+    if (autoOpenUserId) {
+        // Find the conversation item for this user
+        const conversationElement = document.querySelector(`[data-user-id="${autoOpenUserId}"]`);
+        if (conversationElement) {
+            // Open the chat with this user
+            openChatFromElement(conversationElement);
+        } else {
+            // If conversation doesn't exist yet, fetch user info and open chat
+            fetch(`/api/user-info/${autoOpenUserId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        openChat(parseInt(autoOpenUserId), data.username, data.role);
+                    }
+                })
+                .catch(error => console.error('Error fetching user info:', error));
+        }
+    }
     
     // Add mobile menu button if needed
     if (window.innerWidth <= 768) {

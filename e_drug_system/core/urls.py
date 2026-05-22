@@ -27,6 +27,7 @@ urlpatterns = [
     path('messages/', views.messages_view, name='messages'),
     path('messages/send/', views.send_message_general, name='send_message_general'),
     path('api/messages/<int:user_id>/', views.get_conversation_messages, name='get_conversation_messages'),
+    path('api/user-info/<int:user_id>/', views.get_user_info, name='get_user_info'),
     path('posts/', views.PostListView.as_view(), name='post_list'),
     path('posts/create/', views.create_post, name='create_post'),
     path('posts/<int:pk>/', views.PostDetailView.as_view(), name='post_detail'),

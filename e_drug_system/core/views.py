@@ -609,7 +609,7 @@ def messages_view(request):
     # Get all messages involving the current user
     all_messages = Message.objects.filter(
         models.Q(sender=request.user) | models.Q(receiver=request.user)
-    ).select_related('sender', 'receiver').order_by('-created_at')
+    ).select_related('sender', 'receiver').order_by('created_at')
     
     # Group messages by conversation partner
     conversations = {}
@@ -706,6 +706,24 @@ def get_conversation_messages(request, user_id):
             'messages': message_list
         })
         
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_user_info(request, user_id):
+    """API endpoint to get user info for starting a new conversation."""
+    try:
+        user = get_object_or_404(User, id=user_id)
+        return JsonResponse({
+            'success': True,
+            'username': user.username,
+            'role': user.get_role_display() if hasattr(user, 'get_role_display') else 'User'
+        })
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -1068,7 +1086,7 @@ def delete_user_and_posts(request, user_id):
 
 @moderator_required
 def chat_with_post_owner(request, post_id):
-    """Chat with the owner of a post."""
+    """Chat with the owner of a post - redirects to main messaging system."""
     post = get_object_or_404(Post, id=post_id)
     post_owner = post.user
     
@@ -1083,21 +1101,8 @@ def chat_with_post_owner(request, post_id):
             messages.success(request, f'Message sent to {post_owner.username}.')
             return redirect('potentially_fake_posts')
     
-    # Get conversation history
-    sent_messages = Message.objects.filter(
-        sender=request.user, receiver=post_owner
-    ).order_by('-created_at')[:20]
-    received_messages = Message.objects.filter(
-        sender=post_owner, receiver=request.user
-    ).order_by('-created_at')[:20]
-    
-    context = {
-        'post': post,
-        'post_owner': post_owner,
-        'sent_messages': sent_messages,
-        'received_messages': received_messages,
-    }
-    return render(request, 'core/chat_with_owner.html', context)
+    # Redirect to main messaging system with auto-open parameter
+    return redirect(f'/messages/?user={post_owner.id}')
 
 
 @moderator_required

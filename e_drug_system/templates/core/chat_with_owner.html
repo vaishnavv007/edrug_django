@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat with {{ post_owner.username }} - E-Drug System{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Page Header Styles */
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.page-header .subtitle {
+    text-align: center;
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* Main Container */
+.chat-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Chat Box */
+.chat-box {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+/* Chat Header */
+.chat-header {
+    padding: 2rem 2.5rem;
+    background: linear-gradient(to bottom, #fafafa, #ffffff);
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.chat-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+}
+
+.chat-header .post-info {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.chat-header .post-info a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.chat-header .post-info a:hover {
+    text-decoration: underline;
+}
+
+/* Conversation History */
+.conversation-history {
+    padding: 2rem 2.5rem;
+    max-height: 500px;
+    overflow-y: auto;
+    background: #f9fafb;
+}
+
+.message-section {
+    margin-bottom: 2rem;
+}
+
+.message-section h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.message-item {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    border: 1px solid #f3f4f6;
+    transition: all 0.3s ease;
+}
+
+.message-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.message-header strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.message-date {
+    color: #9ca3af;
+}
+
+.message-content {
+    color: #374151;
+    line-height: 1.6;
+}
+
+.no-messages {
+    text-align: center;
+    padding: 2rem;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Message Form */
+.message-form {
+    padding: 2rem 2.5rem;
+    background: white;
+    border-top: 1px solid #f3f4f6;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 120px;
+    transition: all 0.3s ease;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+}
+
+.btn-back {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    margin-top: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 2rem 0;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .chat-header,
+    .conversation-history,
+    .message-form {
+        padding: 1.5rem;
+    }
+    
+    .chat-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .message-item {
+        padding: 1rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-box {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.btn-back {
+    animation-delay: 0.2s;
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Chat with Post Owner</h1>
+        <p class="subtitle">Communicate with {{ post_owner.username }} about their post</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="chat-container">
+        <div class="chat-box">
+            <div class="chat-header">
+                <h2>Conversation with {{ post_owner.username }}</h2>
+                <p class="post-info">
+                    Regarding post: <a href="{% url 'view_post_detail' post.id %}">{{ post.title }}</a>
+                </p>
+            </div>
+
+            <div class="conversation-history">
+                <div class="message-section">
+                    <h3>Messages You Sent</h3>
+                    {% for message in sent_messages %}
+                    <div class="message-item">
+                        <div class="message-header">
+                            <strong>To: {{ post_owner.username }}</strong>
+                            <span class="message-date">{{ message.created_at|date:"F d, Y g:i A" }}</span>
+                        </div>
+                        <div class="message-content">
+                            {{ message.content }}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-messages">
+                        <p>No messages sent yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="message-section">
+                    <h3>Messages from {{ post_owner.username }}</h3>
+                    {% for message in received_messages %}
+                    <div class="message-item">
+                        <div class="message-header">
+                            <strong>From: {{ post_owner.username }}</strong>
+                            <span class="message-date">{{ message.created_at|date:"F d, Y g:i A" }}</span>
+                        </div>
+                        <div class="message-content">
+                            {{ message.content }}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-messages">
+                        <p>No messages received yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <form method="post" class="message-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="content">Send a message to {{ post_owner.username }}</label>
+                    <textarea 
+                        name="content" 
+                        id="content" 
+                        placeholder="Type your message here..." 
+                        required
+                    ></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span>📤</span> Send Message
+                </button>
+            </form>
+        </div>
+
+        <a href="{% url 'potentially_fake_posts' %}" class="btn btn-secondary btn-back">
+            <span>←</span> Back to Flagged Posts
+        </a>
+    </div>
+</div>
+{% endblock %}
