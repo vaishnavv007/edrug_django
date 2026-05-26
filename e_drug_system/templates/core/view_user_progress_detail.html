@@ -367,10 +367,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 {% endif %}
 
+                {% if request.user.is_expert %}
                 <div style="margin-top: 20px;">
-                    <a href="{% url 'send_guidance' user.id %}" class="btn btn-primary" style="display: block; text-align: center; margin-bottom: 10px;">Send Guidance</a>
-                    <a href="{% url 'messages' %}" class="btn btn-secondary" style="display: block; text-align: center;">Send Message</a>
+                    <a href="{% url 'send_message' user.id %}" class="btn btn-primary" style="display: block; text-align: center;">Send Message</a>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -2,6 +2,321 @@
 
 {% block title %}Reported Posts - E-Drug System{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Reported Posts Page Styles */
+.reported-posts {
+    padding: 30px 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Page Header */
+.page-header {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    padding: 60px 0;
+    margin-bottom: 50px;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    animation: shimmer 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.page-header .container {
+    position: relative;
+    z-index: 1;
+}
+
+.page-header h1 {
+    margin: 0 0 15px 0;
+    font-size: 48px;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.page-header h1::before {
+    content: '🚩';
+    font-size: 42px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.page-header p {
+    margin: 0 0 25px 0;
+    opacity: 0.95;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+/* Reports List */
+.reports-list {
+    display: grid;
+    gap: 25px;
+}
+
+/* Report Item */
+.report-item {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border: 2px solid #f39c12;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(243, 156, 18, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.report-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(243, 156, 18, 0.25);
+}
+
+.report-item.reviewed {
+    border-color: #95a5a6;
+    opacity: 0.7;
+}
+
+/* Report Header */
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.report-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+/* Report Details */
+.report-details {
+    color: #7f8c8d;
+    font-size: 15px;
+    margin: 15px 0;
+    line-height: 1.8;
+}
+
+.report-details strong {
+    color: #34495e;
+    font-weight: 600;
+}
+
+/* Report Description */
+.report-description {
+    color: #34495e;
+    font-size: 15px;
+    margin: 15px 0;
+    line-height: 1.6;
+    padding: 15px;
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+    border-left: 4px solid #f39c12;
+    border-radius: 8px;
+}
+
+/* Post Preview */
+.post-preview {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.post-preview p {
+    color: #495057;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Report Actions */
+.report-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e9ecef;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 2px;
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d 0%, #707b7c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+
+/* Empty State */
+.reported-posts > p {
+    text-align: center;
+    padding: 60px 20px;
+    color: #95a5a6;
+    font-size: 18px;
+    font-style: italic;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    border: 2px dashed #dee2e6;
+    margin: 30px 0;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 40px 0;
+    }
+    
+    .page-header h1 {
+        font-size: 36px;
+    }
+    
+    .page-header p {
+        font-size: 18px;
+    }
+    
+    .report-item {
+        padding: 20px;
+    }
+    
+    .report-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .report-header h3 {
+        font-size: 18px;
+    }
+    
+    .report-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
     <div class="container">

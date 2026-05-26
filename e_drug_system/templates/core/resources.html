@@ -510,6 +510,10 @@
                     <div class="resource-content">
                         <h3 class="resource-title">{{ resource.title }}</h3>
                         <p class="resource-description">{{ resource.content|truncatewords:25 }}</p>
+                        <a href="{% url 'resource_detail' resource.id %}" class="btn-outline-custom">
+                            <i class="fas fa-eye"></i>
+                            View Full Post
+                        </a>
                         {% if resource.url %}
                         <a href="{{ resource.url }}" target="_blank" class="btn-outline-custom">
                             <i class="fas fa-external-link-alt"></i>

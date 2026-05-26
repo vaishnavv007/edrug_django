@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ resource.title }} - E-Drug System{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Resource Detail Page Styles */
+.resource-detail {
+    padding: 30px 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Page Header */
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    margin-bottom: 50px;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    animation: shimmer 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.page-header .container {
+    position: relative;
+    z-index: 1;
+}
+
+.page-header h1 {
+    margin: 0 0 15px 0;
+    font-size: 48px;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.page-header p {
+    margin: 0 0 25px 0;
+    opacity: 0.95;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+/* Resource Content */
+.resource-content-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border: 2px solid #667eea;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+}
+
+.resource-meta {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.resource-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.resource-meta-item strong {
+    color: #34495e;
+    font-weight: 600;
+}
+
+.resource-type-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.resource-body {
+    color: #2c3e50;
+    font-size: 16px;
+    line-height: 1.8;
+    margin: 30px 0;
+}
+
+.resource-body p {
+    margin-bottom: 20px;
+}
+
+.resource-body h2 {
+    color: #667eea;
+    font-size: 28px;
+    margin: 30px 0 15px 0;
+    font-weight: 600;
+}
+
+.resource-body h3 {
+    color: #764ba2;
+    font-size: 24px;
+    margin: 25px 0 10px 0;
+    font-weight: 600;
+}
+
+.resource-body ul, .resource-body ol {
+    margin: 20px 0;
+    padding-left: 30px;
+}
+
+.resource-body li {
+    margin-bottom: 10px;
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d 0%, #707b7c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4);
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 40px 0;
+    }
+    
+    .page-header h1 {
+        font-size: 36px;
+    }
+    
+    .page-header p {
+        font-size: 18px;
+    }
+    
+    .resource-content-card {
+        padding: 25px;
+    }
+    
+    .resource-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>{{ resource.title }}</h1>
+        <p>{{ resource.get_resource_type_display }}</p>
+        <a href="{% url 'resources' %}" class="btn btn-secondary">Back to Resources</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="resource-detail">
+        <div class="resource-content-card">
+            <div class="resource-meta">
+                <div class="resource-type-badge">{{ resource.get_resource_type_display }}</div>
+                <div class="resource-meta-item">
+                    <strong>Author:</strong> {{ resource.author.username }}
+                </div>
+                <div class="resource-meta-item">
+                    <strong>Created:</strong> {{ resource.created_at|date:"F d, Y" }}
+                </div>
+            </div>
+            
+            <div class="resource-body">
+                {{ resource.content|linebreaks }}
+            </div>
+            
+            {% if resource.url %}
+            <div style="margin-top: 30px;">
+                <a href="{{ resource.url }}" target="_blank" class="btn btn-primary">
+                    <i class="fas fa-external-link-alt"></i>
+                    Visit External Resource
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

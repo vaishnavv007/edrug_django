@@ -259,6 +259,12 @@ class EducationalResourceListView(ListView):
         return context
 
 
+class EducationalResourceDetailView(DetailView):
+    model = EducationalResource
+    template_name = 'core/resource_detail.html'
+    context_object_name = 'resource'
+
+
 @login_required
 def dashboard(request):
     return render(request, 'core/dashboard.html')
@@ -1171,11 +1177,11 @@ def send_message(request):
 def expert_dashboard(request):
     """Dashboard for healthcare experts."""
     high_risk_users = User.objects.filter(is_high_risk=True).count()
-    total_assessments = Assessment.objects.count()
-    high_risk_assessments = Assessment.objects.filter(risk_score__gte=60).count()
+    total_assessments = UserAssessment.objects.count()
+    high_risk_assessments = UserAssessment.objects.filter(severity_level='Critical').count()
     verified_posts = Post.objects.filter(verified_content=True).count()
     
-    recent_assessments = Assessment.objects.filter(risk_score__gte=60).select_related('user').order_by('-created_at')[:10]
+    recent_assessments = UserAssessment.objects.filter(severity_level='Critical').select_related('user').order_by('-created_at')[:10]
     
     context = {
         'high_risk_users': high_risk_users,
@@ -1211,18 +1217,18 @@ def create_verified_post(request):
 def high_risk_users(request):
     """View high-risk users."""
     users = User.objects.filter(is_high_risk=True).order_by('-created_at')
-    assessments = Assessment.objects.filter(risk_score__gte=60).select_related('user').order_by('-risk_score')
+    critical_assessments = UserAssessment.objects.filter(severity_level='Critical').select_related('user').order_by('-created_at')
     
     context = {
         'users': users,
-        'assessments': assessments,
+        'assessments': critical_assessments,
     }
     return render(request, 'core/high_risk_users.html', context)
 
 
 @expert_required
-def send_guidance(request, user_id):
-    """Send guidance message to a user (experts only)."""
+def send_message_to_user(request, user_id):
+    """Send message to a user (experts only)."""
     user = get_object_or_404(User, id=user_id)
 
     if request.method == 'POST':
@@ -1233,10 +1239,10 @@ def send_guidance(request, user_id):
                 receiver=user,
                 content=content
             )
-            messages.success(request, f'Guidance message sent to {user.username}.')
+            messages.success(request, f'Message sent to {user.username}.')
             return redirect('high_risk_users')
 
-    return render(request, 'core/send_guidance.html', {'user': user})
+    return render(request, 'core/send_message_to_user.html', {'user': user})
 
 
 @expert_required
@@ -1244,23 +1250,48 @@ def rehabilitation_planning(request, user_id):
     """Assist in rehabilitation planning for a user."""
     user = get_object_or_404(User, id=user_id)
     goals = RehabilitationGoal.objects.filter(user=user).order_by('-created_at')
-    assessments = Assessment.objects.filter(user=user).order_by('-created_at')
+    user_assessments = UserAssessment.objects.filter(user=user).order_by('-created_at')
     
     if request.method == 'POST':
-        goal_text = request.POST.get('goal_text')
-        if goal_text:
-            RehabilitationGoal.objects.create(
-                user=user,
-                goal_text=goal_text,
-                progress_percentage=0
-            )
-            messages.success(request, f'Rehabilitation goal added for {user.username}.')
-            return redirect('rehabilitation_planning', user_id=user_id)
+        form_type = request.POST.get('form_type')
+        
+        if form_type == 'add_goal':
+            goal_text = request.POST.get('goal_text')
+            if goal_text:
+                RehabilitationGoal.objects.create(
+                    user=user,
+                    goal_text=goal_text,
+                    progress_percentage=0
+                )
+                messages.success(request, f'Rehabilitation goal added for {user.username}.')
+                return redirect('rehabilitation_planning', user_id=user_id)
+        
+        elif form_type == 'send_message':
+            message_content = request.POST.get('message_content')
+            if message_content:
+                # Include rehabilitation plan details in the message
+                plan_summary = f"Rehabilitation Plan for {user.username}:\n\n"
+                if goals.exists():
+                    plan_summary += "Current Goals:\n"
+                    for goal in goals:
+                        plan_summary += f"- {goal.goal_text}\n"
+                else:
+                    plan_summary += "No goals set yet.\n"
+                
+                full_message = f"{plan_summary}\n\nExpert Message:\n{message_content}"
+                
+                Message.objects.create(
+                    sender=request.user,
+                    receiver=user,
+                    content=full_message
+                )
+                messages.success(request, f'Message sent to {user.username}.')
+                return redirect('rehabilitation_planning', user_id=user_id)
     
     context = {
         'user': user,
         'goals': goals,
-        'assessments': assessments,
+        'user_assessments': user_assessments,
     }
     return render(request, 'core/rehabilitation_planning.html', context)
 

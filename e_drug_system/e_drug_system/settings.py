@@ -14,8 +14,8 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
     'http://127.0.0.1:58017',
-    'http://127.0.0.1:58303',
-    'http://localhost:58303',
+    'http://127.0.0.1:61340',
+    'http://localhost:61340',
     'http://127.0.0.1:57339',
     'http://localhost:80000',
 ]

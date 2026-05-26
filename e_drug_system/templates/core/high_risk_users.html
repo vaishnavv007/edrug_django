@@ -387,7 +387,7 @@
                     <strong>Joined:</strong> {{ user.created_at|date:"F d, Y" }}
                 </p>
                 <div class="user-actions">
-                    <a href="{% url 'send_guidance' user.id %}" class="btn btn-primary">Send Guidance</a>
+                    <a href="{% url 'send_message' user.id %}" class="btn btn-primary">Send Message</a>
                     <a href="{% url 'rehabilitation_planning' user.id %}" class="btn btn-secondary">Rehab Planning</a>
                 </div>
             </div>
@@ -404,13 +404,16 @@
             <div class="assessment-item">
                 <div class="assessment-header">
                     <h3>{% if assessment.user %}{{ assessment.user.username }}{% else %}Anonymous{% endif %}</h3>
-                    <span class="badge badge-danger">Risk Score: {{ assessment.risk_score|floatformat:1 }}</span>
-                    <span class="badge">{{ assessment.sentiment }}</span>
+                    <span class="badge badge-danger">Severity: {{ assessment.severity_level }}</span>
+                    <span class="badge">Readiness: {{ assessment.readiness_level }}</span>
                 </div>
                 <p class="assessment-date">{{ assessment.created_at|date:"F d, Y g:i A" }}</p>
+                {% if assessment.mental_state_summary %}
+                <p class="assessment-summary"><strong>Mental State:</strong> {{ assessment.mental_state_summary }}</p>
+                {% endif %}
                 {% if assessment.user %}
                 <div class="assessment-actions">
-                    <a href="{% url 'send_guidance' assessment.user.id %}" class="btn btn-primary">Send Guidance</a>
+                    <a href="{% url 'send_message' assessment.user.id %}" class="btn btn-primary">Send Message</a>
                     <a href="{% url 'rehabilitation_planning' assessment.user.id %}" class="btn btn-secondary">Rehab Planning</a>
                 </div>
                 {% endif %}
