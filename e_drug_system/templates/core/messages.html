@@ -227,7 +227,7 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
 }
 
@@ -812,11 +812,18 @@ let typingTimeout;
 let isTyping = false;
 let allUsersList = [];
 let conversationsList = [];
+let originalConversationsHTML = '';
 
 // Initialize conversations
 function initializeConversations() {
     // Initialize empty message history
     messageHistory = {};
+    
+    // Store original conversation list HTML
+    const conversationsContainer = document.getElementById('conversations-list');
+    if (conversationsContainer) {
+        originalConversationsHTML = conversationsContainer.innerHTML;
+    }
     
     // Load all users data from page data attributes
     const usersData = document.body.getAttribute('data-all-users');
@@ -1048,6 +1055,12 @@ function clearCurrentChat() {
 function searchConversationsAndUsers() {
     const searchTerm = document.getElementById('search-conversations').value.toLowerCase();
     const conversationsContainer = document.getElementById('conversations-list');
+    
+    // If search is empty, restore original conversation list
+    if (!searchTerm || searchTerm.trim() === '') {
+        conversationsContainer.innerHTML = originalConversationsHTML;
+        return;
+    }
     
     // Clear current list
     conversationsContainer.innerHTML = '';

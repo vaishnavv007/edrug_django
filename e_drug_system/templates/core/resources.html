@@ -489,6 +489,12 @@
                 <i class="fas fa-book-open"></i>
                 Educational Resources
             </h2>
+            {% if user.is_admin or user.is_expert %}
+                <a href="{% url 'create_educational_resource' %}" class="btn-primary-custom">
+                    <i class="fas fa-plus"></i>
+                    Create Resource
+                </a>
+            {% endif %}
         </div>
         
         {% if resources %}

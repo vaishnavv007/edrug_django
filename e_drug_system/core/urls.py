@@ -16,6 +16,7 @@ urlpatterns = [
     path('support-groups/', views.SupportGroupListView.as_view(), name='support_groups'),
     path('support-groups/<int:pk>/', views.SupportGroupDetailView.as_view(), name='support_group_detail'),
     path('resources/', views.EducationalResourceListView.as_view(), name='resources'),
+    path('resources/create/', views.create_educational_resource, name='create_educational_resource'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/admin/create-user/', views.admin_create_user, name='admin_create_user'),
     path('dashboard/admin/assessments/', views.admin_assessment_list, name='admin_assessment_list'),

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post, Comment, Report, Message, AssessmentTemplate, Question, RehabilitationPlan, DailyProgress, DrugInformation, RehabilitationCenter
+from .models import Post, Comment, Report, Message, AssessmentTemplate, Question, RehabilitationPlan, DailyProgress, DrugInformation, RehabilitationCenter, EducationalResource
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -148,4 +148,17 @@ class RehabilitationCenterForm(forms.ModelForm):
             'services_offered': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Enter services offered'}),
             'location_lat': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Latitude (optional)'}),
             'location_lng': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Longitude (optional)'}),
+        }
+
+
+class EducationalResourceForm(forms.ModelForm):
+    class Meta:
+        model = EducationalResource
+        fields = ['title', 'resource_type', 'content', 'url', 'thumbnail']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter resource title'}),
+            'resource_type': forms.Select(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Enter resource content/description'}),
+            'url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Enter external URL (optional)'}),
+            'thumbnail': forms.FileInput(attrs={'class': 'form-control'}),
         }

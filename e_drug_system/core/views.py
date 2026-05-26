@@ -16,7 +16,7 @@ from .models import (
     AssessmentTemplate, Question, UserAssessment, RehabilitationPlan, DailyProgress,
     CommunityGroup, CommunityGroupMembership, ResearchPaper, GroupMessage
 )
-from .forms import PostForm, CommentForm, ReportForm, MessageForm, AssessmentTemplateForm, QuestionForm, RehabilitationPlanForm, DailyProgressForm, DrugInformationForm, RehabilitationCenterForm
+from .forms import PostForm, CommentForm, ReportForm, MessageForm, AssessmentTemplateForm, QuestionForm, RehabilitationPlanForm, DailyProgressForm, DrugInformationForm, RehabilitationCenterForm, EducationalResourceForm
 from users.forms import AdminUserCreationForm
 from users.permissions import moderator_required, expert_required, moderator_or_expert_required
 from .services import analyze_assessment_with_groq, analyze_rehabilitation_plan, analyze_daily_progress
@@ -870,6 +870,11 @@ def report_post(request, post_id):
     if request.method == 'POST':
         form = ReportForm(request.POST)
         if form.is_valid():
+            # Check if user has already reported this post
+            if Report.objects.filter(post=post, user=request.user).exists():
+                messages.error(request, 'You have already reported this post.')
+                return redirect('post_detail', pk=post.pk)
+            
             report = form.save(commit=False)
             report.post = post
             report.user = request.user
@@ -1510,6 +1515,27 @@ def create_research_paper(request):
             messages.error(request, 'Please fill in all required fields.')
     
     return render(request, 'core/create_research_paper.html')
+
+
+@login_required
+def create_educational_resource(request):
+    """Create an educational resource - admin and expert only."""
+    if not (request.user.is_admin or request.user.is_expert):
+        raise PermissionDenied("Only admins and experts can create educational resources.")
+    
+    if request.method == 'POST':
+        form = EducationalResourceForm(request.POST, request.FILES)
+        if form.is_valid():
+            resource = form.save(commit=False)
+            resource.author = request.user
+            resource.verified = True  # Auto-verify for admins and experts
+            resource.save()
+            messages.success(request, f'Educational resource "{resource.title}" has been created successfully.')
+            return redirect('resources')
+    else:
+        form = EducationalResourceForm()
+    
+    return render(request, 'core/create_educational_resource.html', {'form': form})
 
 
 @login_required
