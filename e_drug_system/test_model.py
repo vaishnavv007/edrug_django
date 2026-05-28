@@ -13,7 +13,8 @@ if detector.classifier:
     print("✓ Model loaded successfully!")
     
     # Test with sample text
-    test_text = "This is a test news article about drugs"
+    test_text = """Drug addiction is a chronic disorder that affects both the brain and behavior.
+Medical experts emphasize that recovery requires structured treatment plans, including detoxification, therapy, and continuous support from trained professionals."""
     result = detector.analyze(test_text)
     print(f"Test result: {result}")
 else:

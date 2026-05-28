@@ -814,17 +814,23 @@ def create_post(request):
             
             # Analyze post with BERT model for fake news detection
             text_to_analyze = f"{post.title} {post.content}"
+            print(f"Analyzing post: {text_to_analyze[:100]}...")
+            print(f"Detector loaded: {fake_news_detector.classifier is not None}")
             detection_result = fake_news_detector.analyze(text_to_analyze)
+            print(f"Detection result: {detection_result}")
             
             if detection_result.get('is_fake'):
                 post.potentially_fake = True
                 post.trust_score = 0.0
                 post.fake_confidence = detection_result.get('confidence')
+                print(f"Post flagged as fake! potentially_fake=True, trust_score=0.0")
             else:
                 post.trust_score = 50.0  # Default trust score for non-fake posts
                 post.fake_confidence = detection_result.get('confidence')
+                print(f"Post not flagged. potentially_fake=False, trust_score=50.0")
             
             post.save()
+            print(f"Post saved. ID: {post.id}, potentially_fake: {post.potentially_fake}, is_fake: {post.is_fake}, trust_score: {post.trust_score}")
             return redirect('post_detail', pk=post.pk)
     else:
         form = PostForm()

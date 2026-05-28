@@ -24,6 +24,21 @@ class Migration(migrations.Migration):
                 'ordering': ['-updated_at'],
             },
         ),
+        migrations.AddField(
+            model_name='conversation',
+            name='last_message',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='conversation_last', to='core.message'),
+        ),
+        migrations.AddField(
+            model_name='conversation',
+            name='participants',
+            field=models.ManyToManyField(related_name='conversations', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='message',
+            name='conversation',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='core.conversation'),
+        ),
         migrations.AlterModelOptions(
             name='message',
             options={'ordering': ['created_at']},
@@ -54,20 +69,5 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name='message',
             index=models.Index(fields=['sender', 'created_at'], name='core_messag_sender__43db24_idx'),
-        ),
-        migrations.AddField(
-            model_name='conversation',
-            name='last_message',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='conversation_last', to='core.message'),
-        ),
-        migrations.AddField(
-            model_name='conversation',
-            name='participants',
-            field=models.ManyToManyField(related_name='conversations', to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddField(
-            model_name='message',
-            name='conversation',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='core.conversation'),
         ),
     ]

@@ -60,8 +60,7 @@ Please format your response as JSON with the following structure:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.7,
-            "max_tokens": 1024,
-            "response_format": {"type": "json_object"}
+            "max_tokens": 1024
         }
         
         response = requests.post(f"{api_url}/chat/completions", headers=headers, json=data, timeout=30)
@@ -71,9 +70,25 @@ Please format your response as JSON with the following structure:
         
         result = response.json()
         content = result['choices'][0]['message']['content']
+        print(f"Assessment AI Content: {content}")
         
-        # Parse the JSON response
-        ai_response = json.loads(content)
+        # Try to parse JSON, handle cases where AI returns non-JSON
+        try:
+            ai_response = json.loads(content)
+        except json.JSONDecodeError:
+            # If AI didn't return JSON, extract values using regex
+            import re
+            severity_match = re.search(r'severity_level["\s:]+["\']?([\w\s]+)["\']?', content, re.IGNORECASE)
+            readiness_match = re.search(r'readiness_level["\s:]+["\']?([\w\s]+)["\']?', content, re.IGNORECASE)
+            mental_match = re.search(r'mental_state_summary["\s:]+["\']?([^"\']+)["\']?', content, re.IGNORECASE)
+            rec_match = re.search(r'recommendations["\s:]+["\']?([^"\']+)["\']?', content, re.IGNORECASE)
+            
+            ai_response = {
+                'severity_level': severity_match.group(1) if severity_match else 'Moderate',
+                'readiness_level': readiness_match.group(1) if readiness_match else 'Thinking About Change',
+                'mental_state_summary': mental_match.group(1) if mental_match else content[:500],
+                'recommendations': rec_match.group(1) if rec_match else 'Continue tracking your progress.'
+            }
         
         return {
             'severity_level': ai_response.get('severity_level', 'Moderate'),
@@ -168,16 +183,33 @@ Please format your response as JSON with the following structure:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.7,
-            "max_tokens": 1024,
-            "response_format": {"type": "json_object"}
+            "max_tokens": 1024
         }
         
         response = requests.post(f"{api_url}/chat/completions", headers=headers, json=data, timeout=30)
+        print(f"Plan Analysis API Response Status: {response.status_code}")
+        print(f"Plan Analysis API Response Body: {response.text}")
         response.raise_for_status()
         
         result = response.json()
         content = result['choices'][0]['message']['content']
-        ai_response = json.loads(content)
+        print(f"Plan Analysis AI Content: {content}")
+        
+        # Try to parse JSON, handle cases where AI returns non-JSON
+        try:
+            ai_response = json.loads(content)
+        except json.JSONDecodeError:
+            # If AI didn't return JSON, extract values using regex
+            import re
+            risk_match = re.search(r'risk_level["\s:]+(\d+)', content, re.IGNORECASE)
+            analysis_match = re.search(r'ai_analysis["\s:]+["\']([^"\']+)["\']', content, re.IGNORECASE)
+            rec_match = re.search(r'recommendations["\s:]+["\']([^"\']+)["\']', content, re.IGNORECASE)
+            
+            ai_response = {
+                'risk_level': int(risk_match.group(1)) if risk_match else 50,
+                'ai_analysis': analysis_match.group(1) if analysis_match else content[:500],
+                'recommendations': rec_match.group(1) if rec_match else 'Continue with your recovery plan.'
+            }
         
         return {
             'risk_level': ai_response.get('risk_level', 50),
@@ -272,16 +304,35 @@ Please format your response as JSON with the following structure:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.7,
-            "max_tokens": 1024,
-            "response_format": {"type": "json_object"}
+            "max_tokens": 1024
         }
         
         response = requests.post(f"{api_url}/chat/completions", headers=headers, json=data, timeout=30)
+        print(f"Daily Progress API Response Status: {response.status_code}")
+        print(f"Daily Progress API Response Body: {response.text}")
         response.raise_for_status()
         
         result = response.json()
         content = result['choices'][0]['message']['content']
-        ai_response = json.loads(content)
+        print(f"Daily Progress AI Content: {content}")
+        
+        # Try to parse JSON, handle cases where AI returns non-JSON
+        try:
+            ai_response = json.loads(content)
+        except json.JSONDecodeError:
+            # If AI didn't return JSON, extract values using regex
+            import re
+            self_harm_match = re.search(r'self_harm_detected["\s:]+(true|false)', content, re.IGNORECASE)
+            risk_match = re.search(r'risk_assessment["\s:]+["\']?([\w]+)["\']?', content, re.IGNORECASE)
+            analysis_match = re.search(r'ai_analysis["\s:]+["\']?([^"\']+)["\']?', content, re.IGNORECASE)
+            rec_match = re.search(r'recommendations["\s:]+["\']?([^"\']+)["\']?', content, re.IGNORECASE)
+            
+            ai_response = {
+                'self_harm_detected': bool(self_harm_match) and self_harm_match.group(1).lower() == 'true',
+                'risk_assessment': risk_match.group(1) if risk_match else 'low',
+                'ai_analysis': analysis_match.group(1) if analysis_match else content[:500],
+                'recommendations': rec_match.group(1) if rec_match else 'Continue tracking your progress.'
+            }
         
         return {
             'self_harm_detected': ai_response.get('self_harm_detected', False),
