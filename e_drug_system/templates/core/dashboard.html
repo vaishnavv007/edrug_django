@@ -261,12 +261,12 @@
     border-bottom: none;
 }
 
-.profile-item:hover {
+/* .profile-item:hover {
     background: #f9fafb;
     margin: 0 -1rem;
     padding: 1rem;
     border-radius: 8px;
-}
+} */
 
 .profile-item .label {
     font-weight: 600;
@@ -274,11 +274,11 @@
     font-size: 0.95rem;
 }
 
-.profile-item .value {
+/* .profile-item .value {
     color: #1f2937;
     text-align: right;
     font-weight: 500;
-}
+} */
 
 .btn {
     display: inline-flex;
@@ -585,6 +585,111 @@
 .role-badge {
     animation: float 3s ease-in-out infinite;
 }
+
+
+
+/* ==========================
+   PROFILE CARD
+========================== */
+.card-header{
+    margin-left: auto;
+    margin-right: auto;
+    width:95%
+}
+
+.profile-card {
+    width: 100%;
+    min-width: 0;
+}
+
+.profile-card .card-content {
+    padding: 1.5rem;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 1.5rem;
+}
+
+.profile-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-item:last-child {
+    border-bottom: none;
+}
+
+.profile-item .label {
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.profile-item .value {
+    color: #111827;
+    font-weight: 500;
+    text-align: left;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.btn-edit-profile {
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+/* ==========================
+   DASHBOARD GRID FIX
+========================== */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(350px, 1fr);
+    gap: 2rem;
+    align-items: start;
+}
+
+/* ==========================
+   TABLET
+========================== */
+
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-card {
+        max-width: 100%;
+    }
+}
+
+/* ==========================
+   MOBILE
+========================== */
+
+@media (max-width: 768px) {
+    .profile-item {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+    }
+
+    .profile-item .value {
+        text-align: left;
+    }
+}
+.moderator-card {
+    grid-column: 1 / -1;
+    order: -1; /* Ensures it sits above Quick Actions alongside Admin tools */
+}
+
 </style>
 {% endblock %}
 
@@ -626,6 +731,7 @@
                 </div>
             </div>
             {% endif %}
+            
 
             {% if user.is_expert %}
             <!-- Expert Tools Box -->
@@ -648,7 +754,24 @@
                 </div>
             </div>
             {% endif %}
-
+            {% if user.is_moderator and not user.is_admin %}
+            <div class="dashboard-card moderator-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <div class="icon-wrapper warning">
+                            <span class="icon">🛡️</span>
+                        </div>
+                        <h3>Moderator Tools</h3>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <ul class="action-list">
+                        <li><a href="{% url 'moderator_dashboard' %}"><span class="action-icon">📊</span> Moderator Dashboard</a></li>
+                        <li><a href="{% url 'reported_posts' %}"><span class="action-icon">🚩</span> Review Reports</a></li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
             <!-- Regular Actions Box -->
             <div class="dashboard-card regular-actions-card">
                 <div class="card-header">
@@ -665,11 +788,13 @@
                         <li><a href="{% url 'post_list' %}" class="featured-action posts-action"><span class="action-icon">📝</span> View Posts</a></li>
                         <li><a href="{% url 'messages' %}" class="featured-action messages-action"><span class="action-icon">💬</span> Messages</a></li>
                         <li><a href="{% url 'chatbot' %}" class="featured-action ai-action"><span class="action-icon">🤖</span> Talk to AI Assistant</a></li>
+                        {% if not user.is_expert and not user.is_moderator and not user.is_admin %}
                         <li><a href="{% url 'assessment_list' %}" class="featured-action assessment-action"><span class="action-icon">📋</span> Take Assessment</a></li>
                         <li><a href="{% url 'assessment_reports' %}"><span class="action-icon">📊</span> View Assessment Reports</a></li>
                         <li><a href="{% url 'create_rehabilitation_plan' %}" class="featured-action rehab-action"><span class="action-icon">🎯</span> Create Rehab Plan</a></li>
                         <li><a href="{% url 'drug_list' %}"><span class="action-icon">💊</span> Browse Drug Information</a></li>
                         <li><a href="{% url 'rehab_centers' %}"><span class="action-icon">🏥</span> Find Rehab Centers</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -710,7 +835,7 @@
                 </div>
             </div>
 
-            {% if user.is_moderator and not user.is_admin %}
+            <!-- {% if user.is_moderator and not user.is_admin %}
             <div class="dashboard-card moderator-card">
                 <div class="card-header">
                     <div class="header-left">
@@ -727,7 +852,7 @@
                     </ul>
                 </div>
             </div>
-            {% endif %}
+            {% endif %} -->
         </div>
     </div>
 </div>
@@ -1840,7 +1965,9 @@ function showNotification(message) {
 // Initialize messages badge (you can update this with actual count)
 document.addEventListener('DOMContentLoaded', function() {
     const badge = document.getElementById('messages-badge');
-    badge.textContent = '2'; // Example count
+    if (badge) {
+        badge.textContent = '2'; // Example count
+    }
 });
 </script>
 {% endblock %}

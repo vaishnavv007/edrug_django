@@ -3,6 +3,70 @@
 {% block title %}Edit Profile - E-Drug System{% endblock %}
 
 {% block content %}
+<style>
+    /* Page Header Container */
+.page-header {
+    background-color: #374151; /* Dark slate background matching the image */
+    padding: 2rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px; /* Adjust based on your wrapper width */
+    margin: 0 auto;
+}
+
+/* Left Side: Inline Text Alignment */
+.header-left {
+    display: flex;
+    align-items: baseline; /* Keeps the bottom of the text aligned */
+    gap: 1.25rem;
+}
+
+.header-left h1 {
+    margin: 0;
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #111827; /* Dark text to match your screenshot */
+}
+
+.header-left .subtitle {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #94a3b8; /* Muted grayish-blue text */
+    font-weight: 400;
+}
+
+/* Right Side: Gradient Icon Box */
+.header-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Dashboard gradient */
+    border-radius: 16px; /* Rounded square look */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.header-icon .icon {
+    font-size: 28px;
+    opacity: 0.8;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .header-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+</style>
 <div class="edit-profile-page">
     <div class="container">
         <div class="page-header">

@@ -4,6 +4,195 @@
 {% block title %}Create Community Group{% endblock %}
 
 {% block content %}
+<style>
+.container {
+    padding: 40px 20px;
+    max-width: 1100px;
+}
+
+.card {
+    border: none;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    padding: 24px 32px;
+    border: none;
+}
+
+.card-header h3,
+.card-header h5 {
+    color: white;
+    margin: 0;
+    font-weight: 700;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-header h5 {
+    font-size: 20px;
+}
+
+.card-body {
+    padding: 40px 32px;
+}
+
+.mb-3 {
+    margin-bottom: 28px !important;
+}
+
+.form-label {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 10px;
+}
+
+.form-control {
+    width: 100%;
+    border: 1.5px solid #d1d5db;
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-size: 15px;
+    color: #111827;
+    background: #f9fafb;
+    transition: all 0.3s ease;
+    box-shadow: none !important;
+}
+
+.form-control:focus {
+    border-color: #7c3aed;
+    background: #ffffff;
+    outline: none;
+    box-shadow: 0 0 0 5px rgba(124, 58, 237, 0.12) !important;
+}
+
+input.form-control {
+    height: 56px;
+}
+
+textarea.form-control {
+    min-height: 180px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.form-text {
+    margin-top: 8px;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.d-flex.justify-content-between {
+    margin-top: 35px;
+    gap: 15px;
+}
+
+.btn {
+    border: none;
+    border-radius: 14px;
+    padding: 14px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(124, 58, 237, 0.3);
+}
+
+.btn-secondary {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+    transform: translateY(-2px);
+}
+
+.alert {
+    border: none;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.list-unstyled {
+    margin: 0;
+    padding: 0;
+}
+
+.list-unstyled li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #f9fafb;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    color: #374151;
+}
+
+.list-unstyled li:hover {
+    background: #eef2ff;
+    transform: translateX(6px);
+}
+
+.list-unstyled i {
+    font-size: 18px;
+    min-width: 22px;
+}
+
+.text-success {
+    color: #10b981 !important;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 12px;
+    }
+
+    .card-body {
+        padding: 24px 20px;
+    }
+
+    .card-header {
+        padding: 20px;
+    }
+
+    .card-header h3,
+    .card-header h5 {
+        font-size: 20px;
+    }
+
+    .d-flex.justify-content-between {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+</style>
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
