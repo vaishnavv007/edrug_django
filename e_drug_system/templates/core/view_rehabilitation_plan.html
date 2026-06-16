@@ -163,6 +163,13 @@
 .btn-primary:hover {
     background: #5568d3;
 }
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
 .no-progress {
     text-align: center;
     padding: 30px;
@@ -301,6 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 <a href="{% url 'submit_daily_progress' plan.id %}" class="btn btn-primary">Submit Daily Progress</a>
+                <a href="{% url 'edit_rehabilitation_plan' plan.id %}" class="btn btn-secondary">Edit Plan</a>
 
                 <div class="section-header" style="margin-top: 30px;">
                     <h2>Recent Progress</h2>

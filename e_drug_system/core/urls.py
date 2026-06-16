@@ -64,6 +64,7 @@ urlpatterns = [
     path('assessments/<int:assessment_id>/submit/', views.assessment_submit, name='assessment_submit'),
     path('rehabilitation/create-plan/', views.create_rehabilitation_plan, name='create_rehabilitation_plan'),
     path('rehabilitation/plan/<int:plan_id>/', views.view_rehabilitation_plan, name='view_rehabilitation_plan'),
+    path('rehabilitation/plan/<int:plan_id>/edit/', views.edit_rehabilitation_plan, name='edit_rehabilitation_plan'),
     path('rehabilitation/plan/<int:plan_id>/progress/', views.submit_daily_progress, name='submit_daily_progress'),
     path('rehabilitation/monitor/', views.monitor_user_progress, name='monitor_user_progress'),
     path('rehabilitation/monitor/user/<int:user_id>/', views.view_user_progress_detail, name='view_user_progress_detail'),

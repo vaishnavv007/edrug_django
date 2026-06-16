@@ -469,6 +469,45 @@ def create_rehabilitation_plan(request):
 
 
 @login_required
+def edit_rehabilitation_plan(request, plan_id):
+    """View for users to edit their rehabilitation plan."""
+    plan = get_object_or_404(RehabilitationPlan, id=plan_id, user=request.user)
+    
+    if request.method == 'POST':
+        form = RehabilitationPlanForm(request.POST, instance=plan)
+        if form.is_valid():
+            plan = form.save(commit=False)
+            plan.activities = form.cleaned_data['activities']
+            
+            # Re-analyze updated plan with AI
+            plan_data = {
+                'primary_goal': plan.get_primary_goal_display(),
+                'short_term_goal': plan.short_term_goal,
+                'long_term_goal': plan.long_term_goal,
+                'hours_per_day': plan.hours_per_day,
+                'activities': plan.activities,
+                'activity_frequency': plan.get_activity_frequency_display(),
+                'risk_situations': plan.risk_situations
+            }
+            
+            analysis = analyze_rehabilitation_plan(plan_data)
+            plan.risk_level = analysis.get('risk_level', plan.risk_level)
+            plan.ai_analysis = analysis.get('ai_analysis', '')
+            
+            plan.save()
+            messages.success(request, 'Your rehabilitation plan has been updated successfully!')
+            return redirect('view_rehabilitation_plan', plan_id=plan.id)
+    else:
+        form = RehabilitationPlanForm(instance=plan)
+    
+    context = {
+        'form': form,
+        'action': 'Edit Rehabilitation Plan',
+    }
+    return render(request, 'core/create_rehabilitation_plan.html', context)
+
+
+@login_required
 def view_rehabilitation_plan(request, plan_id):
     """View for users to see their rehabilitation plan and progress."""
     plan = get_object_or_404(RehabilitationPlan, id=plan_id, user=request.user)
