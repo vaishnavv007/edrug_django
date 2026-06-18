@@ -19,10 +19,14 @@ class CustomLoginView(LoginView):
         
         # Check if user is approved
         if not user.is_approved:
-            messages.error(self.request, 'Your account is awaiting administrator approval.')
+            messages.error(self.request, 'Waiting for admin approval. Please come after some time.')
             return redirect('login')
         
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Password or username wrong.')
+        return self.render_to_response(self.get_context_data(form=form))
 
     def get_success_url(self):
         if self.request.user.is_superuser:
