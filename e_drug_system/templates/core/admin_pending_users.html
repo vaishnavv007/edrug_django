@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block title %}Pending Users - Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+.admin-pending-users {
+    padding: 20px 0;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px 0;
+    margin-bottom: 30px;
+}
+.page-header h1 {
+    margin: 0 0 10px 0;
+    font-size: 2.5rem;
+}
+.page-header p {
+    margin: 0;
+    opacity: 0.9;
+}
+.users-table-container {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.users-table th {
+    background: #f8f9fa;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+}
+.users-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+}
+.users-table tr:hover {
+    background: #f8f9fa;
+}
+.role-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.role-admin {
+    background: #dc3545;
+    color: white;
+}
+.role-moderator {
+    background: #ffc107;
+    color: #333;
+}
+.role-expert {
+    background: #28a745;
+    color: white;
+}
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+.btn-accept {
+    background: #28a745;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+.btn-accept:hover {
+    background: #218838;
+}
+.btn-reject {
+    background: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+.btn-reject:hover {
+    background: #c82333;
+}
+.no-users {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+.no-users-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+.back-link:hover {
+    text-decoration: underline;
+}
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+}
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+.user-name {
+    font-weight: 600;
+    color: #333;
+}
+.user-email {
+    font-size: 12px;
+    color: #666;
+}
+.status-pending {
+    color: #ffc107;
+    font-weight: 600;
+}
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <h1>Pending Users</h1>
+        <p>Manage pending requests for admin, moderator, and expert roles</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="admin-pending-users">
+        <a href="{% url 'dashboard' %}" class="back-link">← Back to Dashboard</a>
+        
+        <div class="users-table-container">
+            {% if pending_users %}
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Requested Role</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in pending_users %}
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">{{ user.username|first|upper }}</div>
+                                <div class="user-details">
+                                    <span class="user-name">{{ user.username }}</span>
+                                    <span class="user-email">{{ user.first_name }} {{ user.last_name }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <span class="role-badge role-{{ user.role }}">{{ user.get_role_display }}</span>
+                        </td>
+                        <td>
+                            <span class="status-pending">⏳ Pending</span>
+                        </td>
+                        <td>{{ user.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'admin_accept_user' user.id %}" class="btn-accept" onclick="return confirm('Are you sure you want to accept {{ user.username }} as {{ user.get_role_display }}?')">✓ Accept</a>
+                                <a href="{% url 'admin_reject_user' user.id %}" class="btn-reject" onclick="return confirm('Are you sure you want to reject {{ user.username }}? Their role will be changed to regular User.')">✗ Reject</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-users">
+                <div class="no-users-icon">📋</div>
+                <h3>No Pending Users</h3>
+                <p>There are currently no pending user requests for admin, moderator, or expert roles.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

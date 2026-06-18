@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
@@ -10,6 +10,10 @@ from django.views.decorators.http import require_http_methods
 from django.db import models
 import json
 import uuid
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from .models import (
     DrugInformation, RehabilitationCenter, SupportGroup, EducationalResource,
     Post, Comment, Like, Assessment, Report, Message, RehabilitationGoal,
@@ -290,6 +294,58 @@ def admin_create_user(request):
         'action': 'Create User',
     }
     return render(request, 'core/admin_create_user.html', context)
+
+
+@login_required
+def admin_pending_users(request):
+    """View for admins to list and manage pending users (admin, moderator, expert)."""
+    if not request.user.is_admin:
+        raise PermissionDenied("Only admins can access this view.")
+    
+    # Get users with special roles that are not approved
+    pending_users = User.objects.filter(
+        role__in=['admin', 'moderator', 'expert'],
+        is_approved=False
+    ).order_by('-created_at')
+    
+    context = {
+        'pending_users': pending_users,
+    }
+    return render(request, 'core/admin_pending_users.html', context)
+
+
+@login_required
+def admin_accept_user(request, user_id):
+    """View for admins to accept a user with special role."""
+    if not request.user.is_admin:
+        raise PermissionDenied("Only admins can accept users.")
+    
+    user = get_object_or_404(User, id=user_id)
+    user.is_approved = True
+    user.save()
+    
+    messages.success(request, f'User "{user.username}" has been accepted as {user.get_role_display()}.')
+    return redirect('admin_pending_users')
+
+
+@login_required
+def admin_reject_user(request, user_id):
+    """View for admins to reject a user with special role."""
+    if not request.user.is_admin:
+        raise PermissionDenied("Only admins can reject users.")
+    
+    user = get_object_or_404(User, id=user_id)
+    username = user.username
+    role = user.get_role_display()
+    
+    # Delete the user or change their role to regular user
+    # Here we'll change role to 'user' instead of deleting
+    user.role = 'user'
+    user.is_approved = True
+    user.save()
+    
+    messages.warning(request, f'User "{username}" has been rejected. Their role has been changed to regular User.')
+    return redirect('admin_pending_users')
 
 
 # Admin Assessment CRUD Views
@@ -959,6 +1015,82 @@ def assessment_reports(request):
         'user_assessments': user_assessments,
     }
     return render(request, 'core/assessment_reports.html', context)
+
+
+@login_required
+def download_assessment_pdf(request, assessment_id):
+    """Generate and download PDF for assessment AI analysis."""
+    user_assessment = get_object_or_404(UserAssessment, id=assessment_id, user=request.user)
+    
+    # Create PDF response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="assessment_{user_assessment.assessment.title}_{user_assessment.created_at.strftime("%Y%m%d")}.pdf"'
+    
+    # Create PDF document
+    doc = SimpleDocTemplate(response, pagesize=letter)
+    styles = getSampleStyleSheet()
+    story = []
+    
+    # Add custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        textColor='#667eea',
+        spaceAfter=20
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=14,
+        textColor='#333333',
+        spaceAfter=10
+    )
+    
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=11,
+        textColor='#555555',
+        spaceAfter=12,
+        leading=14
+    )
+    
+    # Add title
+    story.append(Paragraph(f"AI Analysis Report: {user_assessment.assessment.title}", title_style))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    # Add date
+    story.append(Paragraph(f"<b>Date:</b> {user_assessment.created_at.strftime('%B %d, %Y')}", normal_style))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    # Add severity level
+    story.append(Paragraph("<b>Severity Level:</b>", heading_style))
+    story.append(Paragraph(user_assessment.severity_level, normal_style))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    # Add readiness level
+    story.append(Paragraph("<b>Readiness to Change:</b>", heading_style))
+    story.append(Paragraph(user_assessment.readiness_level, normal_style))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    # Add mental state summary if available
+    if user_assessment.mental_state_summary:
+        story.append(Paragraph("<b>Mental State Summary:</b>", heading_style))
+        story.append(Paragraph(user_assessment.mental_state_summary, normal_style))
+        story.append(Spacer(1, 0.2 * inch))
+    
+    # Add AI analysis if available
+    if user_assessment.ai_report:
+        story.append(Paragraph("<b>AI Analysis:</b>", heading_style))
+        story.append(Paragraph(user_assessment.ai_report, normal_style))
+        story.append(Spacer(1, 0.2 * inch))
+    
+    # Build PDF
+    doc.build(story)
+    
+    return response
 
 
 @login_required

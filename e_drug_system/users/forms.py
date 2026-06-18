@@ -5,15 +5,38 @@ from .models import User
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
+    
+    REGISTRATION_ROLE_CHOICES = [
+        ('user', 'User'),
+        ('expert', 'Expert'),
+        ('moderator', 'Moderator'),
+        ('admin', 'Admin'),
+    ]
+    
+    role = forms.ChoiceField(choices=REGISTRATION_ROLE_CHOICES, required=True, label='Select Role')
+    is_verified_expert = forms.BooleanField(required=False, label='Verified Expert')
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username', 'email', 'role', 'is_verified_expert', 'password1', 'password2')
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
-        user.role = 'user'
+        user.role = self.cleaned_data['role']
+        
+        # Auto-approve User role, others require approval
+        if user.role == 'user':
+            user.is_approved = True
+        else:
+            user.is_approved = False
+        
+        # Auto-verify expert role
+        if user.role == 'expert':
+            user.is_verified_expert = True
+        else:
+            user.is_verified_expert = False
+            
         if commit:
             user.save()
         return user

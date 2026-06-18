@@ -126,13 +126,13 @@ Please format your response as JSON with the following structure:
 
 def analyze_rehabilitation_plan(plan_data):
     """
-    Analyze rehabilitation plan and calculate risk level (0-100%).
+    Create a personalized rehabilitation plan based on user inputs.
     
     Args:
-        plan_data (dict): Rehabilitation plan data including goals, activities, risk situations
+        plan_data (dict): User preferences including goals, available time, risk situations
         
     Returns:
-        dict: Analysis result with risk level and AI insights
+        dict: Generated plan with risk assessment and AI insights
     """
     api_key = settings.GROQ_API_KEY
     
@@ -145,28 +145,32 @@ def analyze_rehabilitation_plan(plan_data):
             'recommendations': 'Consider increasing daily recovery activities and seeking support.'
         }
     
-    prompt = f"""You are a rehabilitation assessment AI.
+    prompt = f"""You are a rehabilitation plan creation AI.
 
-Analyze the following rehabilitation plan and calculate a risk level (0-100%).
+Create a personalized rehabilitation plan based on the following user inputs.
 
-Plan Data:
+User Inputs:
 Primary Goal: {plan_data.get('primary_goal')}
 Short-term Goal: {plan_data.get('short_term_goal')}
 Long-term Goal: {plan_data.get('long_term_goal')}
-Hours per Day: {plan_data.get('hours_per_day')}
-Activities: {plan_data.get('activities')}
+Hours per Day Available: {plan_data.get('hours_per_day')}
+Preferred Activities: {plan_data.get('activities')}
 Activity Frequency: {plan_data.get('activity_frequency')}
 Risk Situations: {plan_data.get('risk_situations')}
 
 Return:
-1. Risk Level (0-100%)
-2. AI Analysis (comprehensive assessment of the plan)
-3. Recommendations (specific suggestions to improve the plan)
+1. Risk Level (0-100%) - based on current situation and plan feasibility
+2. AI Analysis - a detailed personalized rehabilitation plan including:
+   - Specific daily/weekly schedule
+   - Recommended activities tailored to goals
+   - Coping strategies for risk situations
+   - Milestones and progress tracking
+3. Recommendations - additional suggestions for success
 
 Please format your response as JSON with the following structure:
 {{
     "risk_level": 0-100,
-    "ai_analysis": "detailed analysis text",
+    "ai_analysis": "detailed personalized plan text",
     "recommendations": "specific recommendations text"
 }}"""
     
@@ -213,8 +217,8 @@ Please format your response as JSON with the following structure:
         
         return {
             'risk_level': ai_response.get('risk_level', 50),
-            'ai_analysis': ai_response.get('ai_analysis', 'No analysis provided'),
-            'recommendations': ai_response.get('recommendations', 'No recommendations provided')
+            'ai_analysis': ai_response.get('ai_analysis', 'No analysis provided').replace('\\n', '\n'),
+            'recommendations': ai_response.get('recommendations', 'No recommendations provided').replace('\\n', '\n')
         }
         
     except Exception as e:

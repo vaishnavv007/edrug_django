@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
+from django.contrib import messages
 from .forms import CustomUserCreationForm, UserProfileForm
 from .models import User
 
@@ -12,6 +13,16 @@ class CustomLoginView(LoginView):
     form_class = AuthenticationForm
     template_name = 'users/login.html'
     redirect_authenticated_user = True
+
+    def form_valid(self, form):
+        user = form.get_user()
+        
+        # Check if user is approved
+        if not user.is_approved:
+            messages.error(self.request, 'Your account is awaiting administrator approval.')
+            return redirect('login')
+        
+        return super().form_valid(form)
 
     def get_success_url(self):
         if self.request.user.is_superuser:
@@ -28,8 +39,16 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            return redirect('dashboard')
+            
+            # Only auto-login if user role (already approved)
+            if user.role == 'user':
+                login(request, user)
+                messages.success(request, 'Registration successful! Welcome to E-Drug System.')
+                return redirect('dashboard')
+            else:
+                # For Expert, Moderator, Admin roles - pending approval
+                messages.info(request, f'Your account has been created with role "{user.get_role_display()}" and is awaiting administrator approval. You will be able to login once approved.')
+                return redirect('login')
     else:
         form = CustomUserCreationForm()
     return render(request, 'users/register.html', {'form': form})

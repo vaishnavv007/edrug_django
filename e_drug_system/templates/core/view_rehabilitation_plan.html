@@ -178,6 +178,7 @@
 }
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const riskFillBar = document.getElementById('risk-fill-bar');
@@ -194,6 +195,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+function downloadPDF() {
+    const element = document.getElementById('ai-analysis-content');
+    const primaryGoal = document.querySelector('.info-item .value').textContent;
+    const riskLevel = document.querySelector('.stat-card .value').textContent;
+    const aiAnalysisText = element.textContent || element.innerText;
+    
+    // Create a container with all relevant info
+    const pdfContent = document.createElement('div');
+    pdfContent.style.padding = '20px';
+    pdfContent.style.fontFamily = 'Arial, sans-serif';
+    
+    pdfContent.innerHTML = `
+        <h1 style="color: #667eea; margin-bottom: 20px;">Rehabilitation Plan Analysis</h1>
+        <div style="margin-bottom: 20px;">
+            <p><strong>Primary Goal:</strong> ${primaryGoal}</p>
+            <p><strong>Risk Level:</strong> ${riskLevel}</p>
+            <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+        </div>
+        <h2 style="color: #333; margin-bottom: 15px;">AI Analysis</h2>
+        <div style="background: #f8f9fa; padding: 15px; border-left: 4px solid #667eea; border-radius: 4px; white-space: pre-wrap;">
+            ${aiAnalysisText}
+        </div>
+    `;
+    
+    const opt = {
+        margin: 10,
+        filename: 'rehabilitation-plan-analysis.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(pdfContent).save();
+}
 </script>
 
 <div class="page-header">
@@ -273,11 +309,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <div class="plan-section">
                     <div class="section-header">
-                        <h2>📊 AI Analysis</h2>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>📊 AI Analysis</h2>
+                            {% if plan.ai_analysis %}
+                            <button onclick="downloadPDF()" class="btn btn-secondary" style="width: auto; padding: 8px 16px; font-size: 14px; margin-bottom: 0;">📥 Download PDF</button>
+                            {% endif %}
+                        </div>
                     </div>
                     
                     {% if plan.ai_analysis %}
-                    <div class="ai-analysis">
+                    <div class="ai-analysis" id="ai-analysis-content">
                         <p>{{ plan.ai_analysis }}</p>
                     </div>
                     {% else %}

@@ -12,6 +12,7 @@ class User(AbstractUser):
     ]
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
+    is_approved = models.BooleanField(default=True, help_text="Whether the account has been approved by an administrator")
     is_high_risk = models.BooleanField(default=False)
     phone = models.CharField(max_length=20, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)

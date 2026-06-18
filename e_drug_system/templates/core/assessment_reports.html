@@ -164,6 +164,21 @@
     background: #0056b3;
     color: white;
 }
+
+.download-pdf-btn {
+    background: #28a745;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s ease;
+}
+
+.download-pdf-btn:hover {
+    background: #218838;
+    color: white;
+}
 </style>
 {% endblock %}
 
@@ -216,6 +231,7 @@
                     {% endif %}
                 </div>
                 <div class="report-actions">
+                    <a href="{% url 'download_assessment_pdf' user_assessment.id %}" class="download-pdf-btn">Download PDF</a>
                     <a href="{% url 'assessment_detail' user_assessment.assessment.id %}" class="take-assessment-btn">Retake Assessment</a>
                 </div>
             </div>
