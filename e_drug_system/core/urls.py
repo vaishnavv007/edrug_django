@@ -70,6 +70,7 @@ urlpatterns = [
     path('rehabilitation/plan/<int:plan_id>/', views.view_rehabilitation_plan, name='view_rehabilitation_plan'),
     path('rehabilitation/plan/<int:plan_id>/edit/', views.edit_rehabilitation_plan, name='edit_rehabilitation_plan'),
     path('rehabilitation/plan/<int:plan_id>/progress/', views.submit_daily_progress, name='submit_daily_progress'),
+    path('rehabilitation/plan/<int:plan_id>/download-pdf/', views.download_rehabilitation_plan_pdf, name='download_rehabilitation_plan_pdf'),
     path('rehabilitation/monitor/', views.monitor_user_progress, name='monitor_user_progress'),
     path('rehabilitation/monitor/user/<int:user_id>/', views.view_user_progress_detail, name='view_user_progress_detail'),
     # Community Group URLs (accessible directly and through resources)

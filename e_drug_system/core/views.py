@@ -577,6 +577,101 @@ def view_rehabilitation_plan(request, plan_id):
 
 
 @login_required
+def download_rehabilitation_plan_pdf(request, plan_id):
+    """Generate and download PDF for rehabilitation plan."""
+    plan = get_object_or_404(RehabilitationPlan, id=plan_id, user=request.user)
+    daily_progress = DailyProgress.objects.filter(rehabilitation_plan=plan).order_by('-date')[:5]
+    
+    # Create PDF response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="rehabilitation_plan_{plan.id}_{plan.created_at.strftime("%Y%m%d")}.pdf"'
+    
+    # Create PDF document
+    doc = SimpleDocTemplate(response, pagesize=letter)
+    styles = getSampleStyleSheet()
+    story = []
+    
+    # Add custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        textColor='#667eea',
+        spaceAfter=20
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=14,
+        textColor='#333333',
+        spaceAfter=10
+    )
+    
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=11,
+        textColor='#555555',
+        spaceAfter=12,
+        leading=14
+    )
+    
+    # Add title
+    story.append(Paragraph("My Rehabilitation Plan", title_style))
+    story.append(Paragraph(f"Generated on {plan.created_at.strftime('%B %d, %Y')}", normal_style))
+    story.append(Spacer(1, 0.3 * inch))
+    
+    # Add goals section
+    story.append(Paragraph("Your Goals", heading_style))
+    story.append(Paragraph(f"<b>Primary Goal:</b> {plan.get_primary_goal_display()}", normal_style))
+    story.append(Paragraph(f"<b>Short-term Goal (7 days):</b> {plan.short_term_goal}", normal_style))
+    story.append(Paragraph(f"<b>Long-term Goal (30-60 days):</b> {plan.long_term_goal}", normal_style))
+    story.append(Paragraph(f"<b>Hours per Day:</b> {plan.hours_per_day} hours", normal_style))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    # Add activities section
+    story.append(Paragraph("Activities", heading_style))
+    activities_str = ", ".join(plan.activities) if plan.activities else "None specified"
+    story.append(Paragraph(f"<b>Activities:</b> {activities_str}", normal_style))
+    story.append(Paragraph(f"<b>Frequency:</b> {plan.get_activity_frequency_display()}", normal_style))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    # Add risk situations section
+    story.append(Paragraph("Risk Situations", heading_style))
+    risk_situations = plan.risk_situations if plan.risk_situations else "No specific triggers identified"
+    story.append(Paragraph(f"<b>Triggers:</b> {risk_situations}", normal_style))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    # Add risk assessment section
+    story.append(Paragraph("Risk Assessment", heading_style))
+    story.append(Paragraph(f"<b>Current Risk Level:</b> {plan.risk_level}%", normal_style))
+    story.append(Paragraph(f"<b>Days Active:</b> {daily_progress.count()}", normal_style))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    # Add AI analysis if available
+    if plan.ai_analysis:
+        story.append(Paragraph("AI Analysis", heading_style))
+        story.append(Paragraph(plan.ai_analysis, normal_style))
+        story.append(Spacer(1, 0.2 * inch))
+    
+    # Add recent progress if available
+    if daily_progress:
+        story.append(Paragraph("Recent Progress", heading_style))
+        for progress in daily_progress:
+            story.append(Paragraph(f"<b>{progress.date.strftime('%B %d, %Y')}</b>", normal_style))
+            story.append(Paragraph(f"Mood: {progress.mood_rating}/5 | Confidence: {progress.confidence_rating}/5", normal_style))
+            if progress.self_harm_detected:
+                story.append(Paragraph("<i>⚠️ Flagged for review</i>", normal_style))
+            story.append(Spacer(1, 0.1 * inch))
+    
+    # Build PDF
+    doc.build(story)
+    
+    return response
+
+
+@login_required
 def submit_daily_progress(request, plan_id):
     """View for users to submit their daily progress."""
     plan = get_object_or_404(RehabilitationPlan, id=plan_id, user=request.user)
