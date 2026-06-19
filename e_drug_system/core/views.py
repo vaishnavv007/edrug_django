@@ -25,6 +25,7 @@ from users.forms import AdminUserCreationForm
 from users.permissions import moderator_required, expert_required, moderator_or_expert_required
 from .services import analyze_assessment_with_groq, analyze_rehabilitation_plan, analyze_daily_progress
 from ai_services.services import FakeNewsDetector
+import re
 
 User = get_user_model()
 
@@ -576,22 +577,112 @@ def view_rehabilitation_plan(request, plan_id):
     return render(request, 'core/view_rehabilitation_plan.html', context)
 
 
+
+def clean_ai_analysis(text):
+    """
+    Clean OCR artifacts and format AI analysis for PDF.
+    """
+    if not text:
+        return ""
+
+    # Convert ALL Unicode dash/hyphen characters to normal ASCII hyphen
+    text = re.sub(
+        r'[\u2010\u2011\u2012\u2013\u2014\u2015\u2212]',
+        '-',
+        text
+    )
+
+    # Replace common problematic Unicode characters
+    replacements = {
+        '\xa0': ' ',      # non-breaking space
+        '\ufffd': '',     # replacement character
+        '\u200b': '',     # zero-width space
+        '\u200c': '',     # zero-width non-joiner
+        '\u200d': '',     # zero-width joiner
+    }
+
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+
+    # Remove black square OCR symbols
+    text = re.sub(r'[■▪▫◾◼◻□]', ' ', text)
+
+    # Remove other non-printable characters
+    text = ''.join(
+        ch for ch in text
+        if ch in '\n\t' or ord(ch) >= 32
+    )
+
+    # Normalize line breaks
+    text = text.replace('\r\n', '\n')
+    text = text.replace('\r', '\n')
+
+    # Remove excessive spaces
+    text = re.sub(r'[ \t]+', ' ', text)
+
+    # Remove excessive blank lines
+    text = re.sub(r'\n{3,}', '\n\n', text)
+
+    # Format common headings
+    headings = [
+        "Summary",
+        "Risk Assessment",
+        "Recommendations",
+        "Action Plan",
+        "Triggers",
+        "Warning Signs",
+        "Recovery Strategy",
+        "Treatment Plan",
+        "Strengths",
+        "Challenges"
+    ]
+
+    for heading in headings:
+        text = re.sub(
+            rf'\b{re.escape(heading)}\b',
+            f'\n\n<b>{heading}</b>\n',
+            text,
+            flags=re.IGNORECASE
+        )
+
+    # Convert bullet styles
+    text = re.sub(
+        r'^\s*[-*]\s+',
+        '• ',
+        text,
+        flags=re.MULTILINE
+    )
+
+    return text.strip()
+
 @login_required
 def download_rehabilitation_plan_pdf(request, plan_id):
-    """Generate and download PDF for rehabilitation plan."""
-    plan = get_object_or_404(RehabilitationPlan, id=plan_id, user=request.user)
-    daily_progress = DailyProgress.objects.filter(rehabilitation_plan=plan).order_by('-date')[:5]
-    
+    """
+    Generate and download PDF for rehabilitation plan.
+    """
+    plan = get_object_or_404(
+        RehabilitationPlan,
+        id=plan_id,
+        user=request.user
+    )
+
+    daily_progress = DailyProgress.objects.filter(
+        rehabilitation_plan=plan
+    ).order_by('-date')[:5]
+
     # Create PDF response
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="rehabilitation_plan_{plan.id}_{plan.created_at.strftime("%Y%m%d")}.pdf"'
-    
+    response['Content-Disposition'] = (
+        f'attachment; filename="rehabilitation_plan_'
+        f'{plan.id}_{plan.created_at.strftime("%Y%m%d")}.pdf"'
+    )
+
     # Create PDF document
     doc = SimpleDocTemplate(response, pagesize=letter)
     styles = getSampleStyleSheet()
     story = []
-    
-    # Add custom styles
+
+    # Styles
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
@@ -599,7 +690,7 @@ def download_rehabilitation_plan_pdf(request, plan_id):
         textColor='#667eea',
         spaceAfter=20
     )
-    
+
     heading_style = ParagraphStyle(
         'CustomHeading',
         parent=styles['Heading2'],
@@ -607,67 +698,186 @@ def download_rehabilitation_plan_pdf(request, plan_id):
         textColor='#333333',
         spaceAfter=10
     )
-    
+
     normal_style = ParagraphStyle(
         'CustomNormal',
         parent=styles['Normal'],
         fontSize=11,
         textColor='#555555',
-        spaceAfter=12,
-        leading=14
+        leading=16,
+        spaceAfter=8
     )
-    
-    # Add title
+
+    # Title
     story.append(Paragraph("My Rehabilitation Plan", title_style))
-    story.append(Paragraph(f"Generated on {plan.created_at.strftime('%B %d, %Y')}", normal_style))
+    story.append(
+        Paragraph(
+            f"Generated on {plan.created_at.strftime('%B %d, %Y')}",
+            normal_style
+        )
+    )
     story.append(Spacer(1, 0.3 * inch))
-    
-    # Add goals section
+
+    # Goals
     story.append(Paragraph("Your Goals", heading_style))
-    story.append(Paragraph(f"<b>Primary Goal:</b> {plan.get_primary_goal_display()}", normal_style))
-    story.append(Paragraph(f"<b>Short-term Goal (7 days):</b> {plan.short_term_goal}", normal_style))
-    story.append(Paragraph(f"<b>Long-term Goal (30-60 days):</b> {plan.long_term_goal}", normal_style))
-    story.append(Paragraph(f"<b>Hours per Day:</b> {plan.hours_per_day} hours", normal_style))
+    story.append(
+        Paragraph(
+            f"<b>Primary Goal:</b> "
+            f"{plan.get_primary_goal_display()}",
+            normal_style
+        )
+    )
+    story.append(
+        Paragraph(
+            f"<b>Short-term Goal (7 days):</b> "
+            f"{plan.short_term_goal}",
+            normal_style
+        )
+    )
+    story.append(
+        Paragraph(
+            f"<b>Long-term Goal (30-60 days):</b> "
+            f"{plan.long_term_goal}",
+            normal_style
+        )
+    )
+    story.append(
+        Paragraph(
+            f"<b>Hours per Day:</b> "
+            f"{plan.hours_per_day} hours",
+            normal_style
+        )
+    )
+
     story.append(Spacer(1, 0.2 * inch))
-    
-    # Add activities section
+
+    # Activities
     story.append(Paragraph("Activities", heading_style))
-    activities_str = ", ".join(plan.activities) if plan.activities else "None specified"
-    story.append(Paragraph(f"<b>Activities:</b> {activities_str}", normal_style))
-    story.append(Paragraph(f"<b>Frequency:</b> {plan.get_activity_frequency_display()}", normal_style))
+
+    activities_str = (
+        ", ".join(plan.activities)
+        if plan.activities
+        else "None specified"
+    )
+
+    story.append(
+        Paragraph(
+            f"<b>Activities:</b> {activities_str}",
+            normal_style
+        )
+    )
+
+    story.append(
+        Paragraph(
+            f"<b>Frequency:</b> "
+            f"{plan.get_activity_frequency_display()}",
+            normal_style
+        )
+    )
+
     story.append(Spacer(1, 0.2 * inch))
-    
-    # Add risk situations section
+
+    # Risk Situations
     story.append(Paragraph("Risk Situations", heading_style))
-    risk_situations = plan.risk_situations if plan.risk_situations else "No specific triggers identified"
-    story.append(Paragraph(f"<b>Triggers:</b> {risk_situations}", normal_style))
+
+    risk_situations = (
+        plan.risk_situations
+        if plan.risk_situations
+        else "No specific triggers identified"
+    )
+
+    story.append(
+        Paragraph(
+            f"<b>Triggers:</b> {risk_situations}",
+            normal_style
+        )
+    )
+
     story.append(Spacer(1, 0.2 * inch))
-    
-    # Add risk assessment section
+
+    # Risk Assessment
     story.append(Paragraph("Risk Assessment", heading_style))
-    story.append(Paragraph(f"<b>Current Risk Level:</b> {plan.risk_level}%", normal_style))
-    story.append(Paragraph(f"<b>Days Active:</b> {daily_progress.count()}", normal_style))
+
+    story.append(
+        Paragraph(
+            f"<b>Current Risk Level:</b> "
+            f"{plan.risk_level}%",
+            normal_style
+        )
+    )
+
+    story.append(
+        Paragraph(
+            f"<b>Days Active:</b> "
+            f"{daily_progress.count()}",
+            normal_style
+        )
+    )
+
     story.append(Spacer(1, 0.2 * inch))
-    
-    # Add AI analysis if available
+
+    # AI Analysis
     if plan.ai_analysis:
         story.append(Paragraph("AI Analysis", heading_style))
-        story.append(Paragraph(plan.ai_analysis, normal_style))
+
+        cleaned_analysis = clean_ai_analysis(
+            plan.ai_analysis
+        )
+
+        for line in cleaned_analysis.split('\n'):
+            line = line.strip()
+
+            if not line:
+                continue
+
+            story.append(
+                Paragraph(
+                    line.replace('\n', '<br/>'),
+                    normal_style
+                )
+            )
+
         story.append(Spacer(1, 0.2 * inch))
-    
-    # Add recent progress if available
+
+    # Recent Progress
     if daily_progress:
-        story.append(Paragraph("Recent Progress", heading_style))
+        story.append(
+            Paragraph(
+                "Recent Progress",
+                heading_style
+            )
+        )
+
         for progress in daily_progress:
-            story.append(Paragraph(f"<b>{progress.date.strftime('%B %d, %Y')}</b>", normal_style))
-            story.append(Paragraph(f"Mood: {progress.mood_rating}/5 | Confidence: {progress.confidence_rating}/5", normal_style))
+
+            story.append(
+                Paragraph(
+                    f"<b>{progress.date.strftime('%B %d, %Y')}</b>",
+                    normal_style
+                )
+            )
+
+            story.append(
+                Paragraph(
+                    f"Mood: {progress.mood_rating}/5 "
+                    f"| Confidence: {progress.confidence_rating}/5",
+                    normal_style
+                )
+            )
+
             if progress.self_harm_detected:
-                story.append(Paragraph("<i>⚠️ Flagged for review</i>", normal_style))
+                story.append(
+                    Paragraph(
+                        "⚠️ Flagged for review",
+                        normal_style
+                    )
+                )
+
             story.append(Spacer(1, 0.1 * inch))
-    
+
     # Build PDF
     doc.build(story)
-    
+
     return response
 
 
