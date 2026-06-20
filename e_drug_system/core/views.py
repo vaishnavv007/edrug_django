@@ -512,7 +512,13 @@ def create_rehabilitation_plan(request):
             analysis = analyze_rehabilitation_plan(plan_data)
             plan.risk_level = analysis.get('risk_level', 50)
             plan.ai_analysis = analysis.get('ai_analysis', '')
+            # Update user risk status
+            new_risk_status = plan.risk_level >= 80
             
+            if request.user.is_high_risk != new_risk_status:
+                request.user.is_high_risk = new_risk_status
+                request.user.save(update_fields=['is_high_risk'])
+
             plan.save()
             messages.success(request, 'Your rehabilitation plan has been created successfully!')
             return redirect('view_rehabilitation_plan', plan_id=plan.id)
@@ -550,6 +556,12 @@ def edit_rehabilitation_plan(request, plan_id):
             analysis = analyze_rehabilitation_plan(plan_data)
             plan.risk_level = analysis.get('risk_level', plan.risk_level)
             plan.ai_analysis = analysis.get('ai_analysis', '')
+            # Update user risk status
+            new_risk_status = plan.risk_level >= 80
+            
+            if request.user.is_high_risk != new_risk_status:
+                request.user.is_high_risk = new_risk_status
+                request.user.save(update_fields=['is_high_risk'])
             
             plan.save()
             messages.success(request, 'Your rehabilitation plan has been updated successfully!')
@@ -578,36 +590,101 @@ def view_rehabilitation_plan(request, plan_id):
 
 
 
+
 def clean_ai_analysis(text):
     """
-    Clean OCR artifacts and format AI analysis for PDF.
+    Clean OCR artifacts, normalize text, and format AI analysis.
+    Supports:
+    - Plain text reports
+    - JSON reports
+    - Markdown JSON blocks (`json ... `)
     """
     if not text:
         return ""
 
-    # Convert ALL Unicode dash/hyphen characters to normal ASCII hyphen
+# --------------------------------------------------
+# Extract JSON from markdown code block if present
+# --------------------------------------------------
+    json_match = re.search(
+        r"```json\s*(.*?)\s*```",
+        text,
+        re.DOTALL
+    )
+
+    if json_match:
+        text = json_match.group(1).strip()
+
+# --------------------------------------------------
+# Try parsing JSON AI response
+# --------------------------------------------------
+    try:
+        data = json.loads(text)
+
+        if isinstance(data, dict):
+            sections = []
+
+            severity = data.get("severity_level")
+            if severity:
+                sections.append(
+                    f"Severity Level\n{severity}"
+                )
+
+            readiness = data.get("readiness_level")
+            if readiness:
+                sections.append(
+                    f"Readiness Level\n{readiness}"
+                )
+
+            summary = data.get("mental_state_summary")
+            if summary:
+                sections.append(
+                    f"Mental State Summary\n{summary}"
+                )
+
+            recommendations = (
+                data.get("Recommendations")
+                or data.get("recommendations")
+            )
+
+            if recommendations:
+                sections.append(
+                    f"Recommendations\n{recommendations}"
+                )
+
+            text = "\n\n".join(sections)
+
+    except (json.JSONDecodeError, TypeError):
+        # Not JSON, continue with normal cleanup
+        pass
+
+# --------------------------------------------------
+# Unicode cleanup
+# --------------------------------------------------
     text = re.sub(
         r'[\u2010\u2011\u2012\u2013\u2014\u2015\u2212]',
         '-',
         text
     )
 
-    # Replace common problematic Unicode characters
     replacements = {
-        '\xa0': ' ',      # non-breaking space
-        '\ufffd': '',     # replacement character
-        '\u200b': '',     # zero-width space
-        '\u200c': '',     # zero-width non-joiner
-        '\u200d': '',     # zero-width joiner
+        '\xa0': ' ',
+        '\ufffd': '',
+        '\u200b': '',
+        '\u200c': '',
+        '\u200d': '',
     }
 
     for old, new in replacements.items():
         text = text.replace(old, new)
 
-    # Remove black square OCR symbols
-    text = re.sub(r'[■▪▫◾◼◻□]', ' ', text)
+# Remove black square OCR symbols
+    text = re.sub(
+        r'[■▪▫◾◼◻□]',
+        ' ',
+        text
+    )
 
-    # Remove other non-printable characters
+    # Remove non-printable characters
     text = ''.join(
         ch for ch in text
         if ch in '\n\t' or ord(ch) >= 32
@@ -623,11 +700,16 @@ def clean_ai_analysis(text):
     # Remove excessive blank lines
     text = re.sub(r'\n{3,}', '\n\n', text)
 
-    # Format common headings
+    # --------------------------------------------------
+    # Format headings
+    # --------------------------------------------------
     headings = [
+        "Severity Level",
+        "Readiness Level",
+        "Mental State Summary",
+        "Recommendations",
         "Summary",
         "Risk Assessment",
-        "Recommendations",
         "Action Plan",
         "Triggers",
         "Warning Signs",
@@ -639,13 +721,12 @@ def clean_ai_analysis(text):
 
     for heading in headings:
         text = re.sub(
-            rf'\b{re.escape(heading)}\b',
+            rf'(?im)^\s*{re.escape(heading)}\s*$',
             f'\n\n<b>{heading}</b>\n',
-            text,
-            flags=re.IGNORECASE
+            text
         )
 
-    # Convert bullet styles
+    # Convert markdown bullets
     text = re.sub(
         r'^\s*[-*]\s+',
         '• ',
@@ -653,7 +734,17 @@ def clean_ai_analysis(text):
         flags=re.MULTILINE
     )
 
+    # Convert numbered lists
+    text = re.sub(
+        r'^\s*(\d+)\.\s+',
+        r'\1. ',
+        text,
+        flags=re.MULTILINE
+    )
+
     return text.strip()
+
+
 
 @login_required
 def download_rehabilitation_plan_pdf(request, plan_id):
@@ -1308,18 +1399,60 @@ def toggle_like(request, post_id):
     return redirect('post_detail', pk=post_id)
 
 
+
+def format_ai_report_for_display(text):
+    if not text:
+        return {}
+
+    # Remove markdown code blocks
+    text = re.sub(r'```json\s*', '', text)
+    text = re.sub(r'```', '', text)
+    text = text.strip()
+
+    try:
+        data = json.loads(text)
+
+        return {
+            'severity_level': data.get('severity_level'),
+            'readiness_level': data.get('readiness_level'),
+            'mental_state_summary': data.get('mental_state_summary'),
+            'recommendations': (
+                data.get('recommendations')
+                or data.get('Recommendations')
+            ),
+        }
+
+    except Exception:
+        return {
+            'raw_text': text
+        }
+
 # Self-Assessment View - Authenticated users can take assessments
 @login_required
 def assessment_reports(request):
     """View for users to see their assessment reports."""
-    user_assessments = UserAssessment.objects.filter(
-        user=request.user
-    ).select_related('assessment').order_by('-created_at')
-    
+
+    user_assessments = (
+        UserAssessment.objects
+        .filter(user=request.user)
+        .select_related('assessment')
+        .order_by('-created_at')
+    )
+
+    for assessment in user_assessments:
+        assessment.ai_data = format_ai_report_for_display(
+            assessment.ai_report
+        )
+
     context = {
         'user_assessments': user_assessments,
     }
-    return render(request, 'core/assessment_reports.html', context)
+
+    return render(
+        request,
+        'core/assessment_reports.html',
+        context
+    )
 
 
 @login_required
@@ -1382,14 +1515,48 @@ def download_assessment_pdf(request, assessment_id):
     
     # Add mental state summary if available
     if user_assessment.mental_state_summary:
-        story.append(Paragraph("<b>Mental State Summary:</b>", heading_style))
-        story.append(Paragraph(user_assessment.mental_state_summary, normal_style))
+        story.append(Paragraph("Mental State Summary", heading_style))
+
+        cleaned_summary = clean_ai_analysis(
+            user_assessment.mental_state_summary
+        )
+
+        for line in cleaned_summary.split('\n'):
+            line = line.strip()
+
+            if not line:
+                continue
+
+            story.append(
+                Paragraph(
+                    line.replace('\n', '<br/>'),
+                        normal_style
+                )
+            )
+
         story.append(Spacer(1, 0.2 * inch))
     
     # Add AI analysis if available
     if user_assessment.ai_report:
-        story.append(Paragraph("<b>AI Analysis:</b>", heading_style))
-        story.append(Paragraph(user_assessment.ai_report, normal_style))
+        story.append(Paragraph("AI Analysis", heading_style))
+
+        cleaned_report = clean_ai_analysis(
+            user_assessment.ai_report
+        )
+
+        for line in cleaned_report.split('\n'):
+            line = line.strip()
+
+            if not line:
+                continue
+
+            story.append(
+                Paragraph(
+                    line.replace('\n', '<br/>'),
+                    normal_style
+                )
+            )
+
         story.append(Spacer(1, 0.2 * inch))
     
     # Build PDF
