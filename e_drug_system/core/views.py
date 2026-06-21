@@ -511,7 +511,14 @@ def create_rehabilitation_plan(request):
             
             analysis = analyze_rehabilitation_plan(plan_data)
             plan.risk_level = analysis.get('risk_level', 50)
-            plan.ai_analysis = analysis.get('ai_analysis', '')
+
+            analysis_text = analysis.get('ai_analysis', '')
+            recommendations = analysis.get('recommendations', '')
+
+            if recommendations:
+                analysis_text += "\n\nRECOMMENDATIONS\n\n" + recommendations
+
+            plan.ai_analysis = analysis_text
             # Update user risk status
             new_risk_status = plan.risk_level >= 80
             
@@ -554,8 +561,16 @@ def edit_rehabilitation_plan(request, plan_id):
             }
             
             analysis = analyze_rehabilitation_plan(plan_data)
-            plan.risk_level = analysis.get('risk_level', plan.risk_level)
-            plan.ai_analysis = analysis.get('ai_analysis', '')
+            plan.risk_level = analysis.get('risk_level', 50)
+
+            analysis_text = analysis.get('ai_analysis', '')
+            recommendations = analysis.get('recommendations', '')
+
+            if recommendations:
+                analysis_text += "\n\nRECOMMENDATIONS\n\n" + recommendations
+
+            plan.ai_analysis = analysis_text
+            
             # Update user risk status
             new_risk_status = plan.risk_level >= 80
             

@@ -187,7 +187,7 @@ Please format your response as JSON with the following structure:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.7,
-            "max_tokens": 1024
+            "max_tokens": 3000
         }
         
         response = requests.post(f"{api_url}/chat/completions", headers=headers, json=data, timeout=30)

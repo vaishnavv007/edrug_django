@@ -221,6 +221,24 @@
     margin-bottom: 15px;
     line-height: 1.8;
 }
+.analysis-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.8;
+    color: #444;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+}
+
+.ai-analysis {
+    overflow: visible !important;
+    max-height: none !important;
+}
 
 </style>
 
@@ -329,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     {% if plan.ai_analysis %}
                     <div class="ai-analysis" id="ai-analysis-content">
-                        <p>{{ plan.ai_analysis }}</p>
+                        <pre class="analysis-content">{{ plan.ai_analysis }}</pre>
                     </div>
                     {% else %}
                     <p style="color: #999;">No AI analysis available yet.</p>
