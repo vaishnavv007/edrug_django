@@ -384,6 +384,33 @@
         opacity: 1;
     }
 }
+
+
+.chat-message.bot .message-content {
+    background: white;
+    color: #333;
+    border-bottom-left-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+
+    white-space: pre-wrap;
+    line-height: 1.8;
+    text-align: left;
+}
+
+.message-content p {
+    margin: 0 0 1rem;
+}
+
+.message-content ul,
+.message-content ol {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.message-content li {
+    margin-bottom: 0.5rem;
+}
 </style>
 {% endblock %}
 
