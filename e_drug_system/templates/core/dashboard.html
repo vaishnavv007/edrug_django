@@ -4,602 +4,484 @@
 
 {% block extra_css %}
 <style>
-/* Dashboard Header Styles */
-.dashboard {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Redefined Colors and Core Variables */
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --secondary: #64748b;
+    --accent: #8b5cf6;
+    --accent-hover: #7c3aed;
+    --dark-bg: #0f172a;
+    --dark-border: #1e293b;
+    --light-bg: #f8fafc;
+    --light-border: #e2e8f0;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --sidebar-text: #94a3b8;
+    --sidebar-hover: #f8fafc;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Page Layout Configuration */
+.dashboard-layout {
+    display: flex;
+    min-height: calc(100vh - 65px - 60px); /* accounts for typical navbar/footer heights */
+    background-color: var(--light-bg);
+    font-family: var(--font-sans);
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
-.dashboard::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(255,255,255,0.03) 100%);
-    pointer-events: none;
+/* Sidebar Toggle for Mobile Devices */
+.sidebar-toggle {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dashboard-header {
-    padding: 3rem 0 2rem 0;
-    position: relative;
-    z-index: 1;
+.sidebar-toggle:hover {
+    background-color: var(--primary-hover);
+    transform: scale(1.05);
 }
 
-.header-content {
+.sidebar-toggle svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Left Sidebar Styles */
+.dashboard-sidebar {
+    width: 280px;
+    background-color: var(--dark-bg);
+    border-right: 1px solid var(--dark-border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem 1.25rem;
+    flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 998;
+    color: #f8fafc;
+}
+
+.sidebar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
+    margin-bottom: 2rem;
 }
 
-.greeting h1 {
-    font-size: 3rem;
+.sidebar-header .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: -0.5px;
+    color: white;
+}
+
+.brand-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--accent);
+}
+
+.sidebar-close-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--sidebar-text);
+    font-size: 1.75rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.sidebar-close-btn:hover {
+    color: white;
+}
+
+/* User Identity Section inside Sidebar */
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 2rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: 700;
     color: white;
-    margin: 0 0 0.5rem 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    animation: fadeInUp 0.6s ease-out;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
 }
 
-.subtitle {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin: 0;
-    animation: fadeInUp 0.6s ease-out 0.1s forwards;
-    opacity: 0;
+.user-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
-.role-badge-wrapper {
-    animation: fadeInUp 0.6s ease-out 0.2s forwards;
-    opacity: 0;
-}
-
-.role-badge {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 0.5rem 1.5rem;
-    border-radius: 25px;
+.user-name {
     font-weight: 600;
-    font-size: 1rem;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.role-badge:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Dashboard Container */
-.dashboard .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-    position: relative;
-    z-index: 1;
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    margin-top: 2rem;
-    animation: fadeInUp 0.6s ease-out 0.3s forwards;
-    opacity: 0;
-}
-
-.dashboard-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.95rem;
+    color: white;
+    white-space: nowrap;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    backdrop-filter: blur(10px);
+    text-overflow: ellipsis;
 }
 
-.dashboard-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
+.user-badge {
+    font-size: 0.75rem;
+    color: var(--sidebar-text);
+    margin-top: 0.15rem;
+    font-weight: 500;
 }
 
-.card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* Navigation Links inside Sidebar */
+.sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+}
+
+.nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nav-section-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #475569;
+    letter-spacing: 0.08em;
+    padding-left: 0.75rem;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nav-link-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.75rem;
+    border-radius: 10px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transition: color 0.25s;
+}
+
+.nav-link-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--sidebar-hover);
+    transform: translateX(4px);
+}
+
+.nav-link-item:hover .nav-icon {
+    color: var(--accent);
+}
+
+/* Active tools / priority highlights */
+.active-special {
+    color: white;
+    background-color: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.active-special:hover {
+    background-color: rgba(99, 102, 241, 0.15);
+}
+
+/* Featured styles mapped to specific link categories */
+.featured-nav.posts-nav:hover .nav-icon { color: #14b8a6; }
+.featured-nav.messages-nav:hover .nav-icon { color: #3b82f6; }
+.featured-nav.ai-nav:hover .nav-icon { color: #a855f7; }
+.featured-nav.assessment-nav:hover .nav-icon { color: #f59e0b; }
+.featured-nav.rehab-nav:hover .nav-icon { color: #10b981; }
+
+/* Main Panel Styles */
+.dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2.25rem;
+    gap: 2rem;
+    overflow-y: auto;
+    width: 100%;
+}
+
+/* Header bar */
+.dashboard-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--light-border);
+    padding-bottom: 1.5rem;
+    gap: 1.5rem;
+}
+
+.welcome-heading h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.8px;
+    margin: 0 0 0.35rem 0;
+}
+
+.highlight-user {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle-text {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    margin: 0;
+    font-weight: 400;
+}
+
+.role-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
+}
+
+.role-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    animation: pulse 2.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(0.9);
+        opacity: 0.6;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+}
+
+/* Content Grid Layout */
+.dashboard-content-grid {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.overview-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Metrics widgets */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.metric-card {
+    background: var(--card-bg);
+    border: 1px solid var(--light-border);
+    padding: 1.25rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e1;
+}
+
+.metric-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.metric-icon.val-blue { background: #eff6ff; }
+.metric-icon.val-green { background: #f0fdf4; }
+.metric-icon.val-purple { background: #faf5ff; }
+
+.metric-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.metric-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.15rem 0;
+}
+
+.metric-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* Info block card styles */
+.info-block-card {
+    background: var(--card-bg);
+    border: 1px solid var(--light-border);
+    border-radius: 18px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+}
+
+.info-card-header {
+    background: #f8fafc;
+    border-bottom: 1px solid var(--light-border);
+    padding: 1.25rem 1.5rem;
+}
+
+.info-card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.info-card-body {
+    padding: 1.75rem;
+    color: #334155;
+    line-height: 1.7;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.info-card-body p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.tip-banner {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1.1rem;
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #78350f;
+    line-height: 1.5;
+}
+
+/* Profile card specific updates */
+.profile-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-card {
+    background: var(--card-bg);
+    border: 1px solid var(--light-border);
+    border-radius: 18px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+}
+
+.profile-card .card-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%) !important;
     color: white;
     padding: 1.5rem;
     display: flex;
     align-items: center;
-    position: relative;
-    overflow: hidden;
+    border-radius: 0;
+    width: 100%;
+    margin: 0;
 }
 
-.card-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-    pointer-events: none;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.icon-wrapper {
-    width: 48px;
-    height: 48px;
+.profile-card .icon-wrapper {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    position: relative;
-    z-index: 1;
-    transition: all 0.3s ease;
+    font-size: 1rem;
 }
 
-.icon-wrapper.primary {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.icon-wrapper.success {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.icon-wrapper.danger {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.icon-wrapper.warning {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.icon-wrapper.info {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.icon-wrapper:hover {
-    transform: scale(1.1);
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.card-header h3 {
-    margin: 0;
-    font-size: 1.3rem;
+.profile-card h3 {
+    margin: 0 0 0 0.75rem;
+    font-size: 1.15rem;
     font-weight: 600;
-    position: relative;
-    z-index: 1;
-}
-
-.card-content {
-    padding: 2rem;
-    background: white;
-}
-
-.action-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.action-list li {
-    margin-bottom: 0.75rem;
-}
-
-.action-list a {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    text-decoration: none;
-    color: #374151;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    border: 1px solid transparent;
-    background: #f9fafb;
-}
-
-.action-list a:hover {
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    color: #667eea;
-    transform: translateX(8px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: #e5e7eb;
-}
-
-.action-icon {
-    font-size: 18px;
-    width: 24px;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.action-list a:hover .action-icon {
-    transform: scale(1.2);
-}
-
-.profile-details {
-    margin-bottom: 1.5rem;
-}
-
-.profile-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid #f3f4f6;
-    transition: all 0.3s ease;
-}
-
-.profile-item:last-child {
-    border-bottom: none;
-}
-
-/* .profile-item:hover {
-    background: #f9fafb;
-    margin: 0 -1rem;
-    padding: 1rem;
-    border-radius: 8px;
-} */
-
-.profile-item .label {
-    font-weight: 600;
-    color: #6b7280;
-    font-size: 0.95rem;
-}
-
-/* .profile-item .value {
-    color: #1f2937;
-    text-align: right;
-    font-weight: 500;
-} */
-
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
-}
-
-.btn-edit-profile {
-    width: 100%;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-/* Featured Actions - Make important items more noticeable */
-.featured-action {
-    position: relative;
-    font-weight: 600;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 2px solid transparent;
-    transform: translateX(0);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.featured-action:hover {
-    transform: translateX(12px) scale(1.02);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.featured-action::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    border-radius: 2px 0 0 2px;
-    transition: width 0.3s ease;
-}
-
-.featured-action:hover::before {
-    width: 6px;
-}
-
-/* Messages Action - Blue theme */
-.messages-action {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    border-color: #2196f3;
-    color: #1565c0;
-}
-
-.messages-action:hover {
-    background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
-    color: #0d47a1;
-}
-
-.messages-action::before {
-    background: #2196f3;
-}
-
-.messages-action .action-icon {
-    color: #1976d2;
-    font-size: 18px;
-}
-
-/* AI Assistant Action - Purple theme */
-.ai-action {
-    background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
-    border-color: #9c27b0;
-    color: #6a1b9a;
-}
-
-.ai-action:hover {
-    background: linear-gradient(135deg, #e1bee7 0%, #ce93d8 100%);
-    color: #4a148c;
-}
-
-.ai-action::before {
-    background: #9c27b0;
-}
-
-.ai-action .action-icon {
-    color: #7b1fa2;
-    font-size: 18px;
-}
-
-/* Assessment Action - Orange theme */
-.assessment-action {
-    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-    border-color: #ff9800;
-    color: #e65100;
-}
-
-.assessment-action:hover {
-    background: linear-gradient(135deg, #ffe0b2 0%, #ffcc80 100%);
-    color: #bf360c;
-}
-
-.assessment-action::before {
-    background: #ff9800;
-}
-
-.assessment-action .action-icon {
-    color: #f57c00;
-    font-size: 18px;
-}
-
-/* Rehabilitation Plan Action - Green theme */
-.rehab-action {
-    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
-    border-color: #4caf50;
-    color: #2e7d32;
-}
-
-.rehab-action:hover {
-    background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
-    color: #1b5e20;
-}
-
-.rehab-action::before {
-    background: #4caf50;
-}
-
-.rehab-action .action-icon {
-    color: #388e3c;
-    font-size: 18px;
-}
-
-/* Posts Action - Teal theme */
-.posts-action {
-    background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
-    border-color: #009688;
-    color: #00695c;
-}
-
-.posts-action:hover {
-    background: linear-gradient(135deg, #b2dfdb 0%, #80cbc4 100%);
-    color: #004d40;
-}
-
-.posts-action::before {
-    background: #009688;
-}
-
-.posts-action .action-icon {
-    color: #00796b;
-    font-size: 18px;
-}
-
-/* Expert Action - Gold theme to highlight priority */
-.expert-action {
-    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
-    border-color: #ffc107;
-    color: #f57c00;
-    font-weight: 700;
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
-}
-
-.expert-action:hover {
-    background: linear-gradient(135deg, #ffecb3 0%, #ffe082 100%);
-    color: #e65100;
-    transform: translateX(12px) scale(1.02);
-    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
-}
-
-.expert-action::before {
-    background: linear-gradient(180deg, #ffc107 0%, #ff9800 100%);
-    width: 6px;
-}
-
-.expert-action:hover::before {
-    width: 8px;
-}
-
-.expert-action .action-icon {
-    color: #ff9800;
-    font-size: 20px;
-    font-weight: 700;
-}
-
-/* Expert Tools Card Styling */
-.expert-tools-card {
-    grid-column: 1 / -1;
-    order: -2; /* Expert tools appear first */
-}
-
-.expert-tools-card .card-header {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-}
-
-.expert-tools-card .icon-wrapper.info {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-/* Regular Actions Card Styling */
-.regular-actions-card {
-    order: -1; /* Regular actions appear second */
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .dashboard-header {
-        padding: 2rem 0 1.5rem 0;
-    }
-    
-    .header-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-        padding: 0 1rem;
-    }
-    
-    .greeting h1 {
-        font-size: 2rem;
-    }
-    
-    .subtitle {
-        font-size: 1rem;
-    }
-    
-    .dashboard .container {
-        padding: 0 1rem;
-    }
-    
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        margin-top: 1.5rem;
-    }
-    
-    .card-header {
-        padding: 1.25rem;
-    }
-    
-    .card-content {
-        padding: 1.5rem;
-    }
-    
-    .action-list a {
-        padding: 0.875rem 1rem;
-    }
-    
-    .icon-wrapper {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-    }
-}
-
-/* Admin, Moderator, Expert cards - make them span full width */
-.admin-card {
-    grid-column: 1 / -1;
-    order: -1; /* Admin tools appear first for admin users */
-}
-
-.moderator-card,
-.expert-card {
-    grid-column: 1 / -1;
-}
-
-/* Animation keyframes */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Enhanced floating animations */
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-/* Add subtle floating animation to role badge */
-.role-badge {
-    animation: float 3s ease-in-out infinite;
-}
-
-
-
-/* ==========================
-   PROFILE CARD
-========================== */
-.card-header{
-    margin-left: auto;
-    margin-right: auto;
-    width:95%
-}
-
-.profile-card {
-    width: 100%;
-    min-width: 0;
 }
 
 .profile-card .card-content {
@@ -609,17 +491,14 @@
 .profile-details {
     display: flex;
     flex-direction: column;
-    gap: 0;
-    margin-bottom: 1.5rem;
 }
 
 .profile-item {
-    display: grid;
-    grid-template-columns: 120px 1fr;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid #e5e7eb;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .profile-item:last-child {
@@ -627,235 +506,1318 @@
 }
 
 .profile-item .label {
-    font-weight: 600;
-    color: #6b7280;
-    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .profile-item .value {
-    color: #111827;
-    font-weight: 500;
-    text-align: left;
-    overflow-wrap: break-word;
-    word-break: break-word;
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.925rem;
+    text-align: right;
 }
 
 .btn-edit-profile {
     width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.8rem;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    margin-top: 1rem;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ==========================
-   DASHBOARD GRID FIX
-========================== */
+.btn-edit-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+}
 
-.dashboard-grid {
+/* Floating Icons & AI Chat popup theme matching styling */
+.floating-icons {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 999;
+}
+
+.floating-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.floating-icon:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+}
+
+.floating-icon .icon {
+    font-size: 1.4rem;
+}
+
+.chat-icon {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+}
+
+.badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+/* Popup Chat Window Custom Theme Rules */
+.popup-window {
+    position: fixed;
+    bottom: 95px;
+    right: 25px;
+    width: 370px;
+    height: 480px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    border: 1px solid var(--light-border);
+    overflow: hidden;
+}
+
+.popup-window.active {
+    display: flex;
+}
+
+.popup-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ai-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.ai-status h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.status-indicator {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+}
+
+.status-indicator.online {
+    color: #4ade80;
+}
+
+.popup-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.action-btn, .close-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.action-btn:hover, .close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    background: #f8fafc;
+}
+
+.ai-message, .user-message {
+    display: flex;
+    gap: 8px;
+    max-width: 85%;
+    animation: messageSlide 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ai-message { align-self: flex-start; }
+.user-message { align-self: flex-end; flex-direction: row-reverse; }
+
+.message-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.user-message .message-avatar {
+    background: var(--primary);
+    color: white;
+}
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.message-text {
+    padding: 0.65rem 0.9rem;
+    border-radius: 16px;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.ai-message .message-text {
+    background: white;
+    color: #1e293b;
+    border-top-left-radius: 4px;
+    border: 1px solid var(--light-border);
+}
+
+.user-message .message-text {
+    background: var(--primary);
+    color: white;
+    border-top-right-radius: 4px;
+}
+
+.message-time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    padding: 0 4px;
+}
+
+.user-message .message-time { text-align: right; }
+
+.typing-indicator {
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 3px;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+}
+
+.chat-input {
+    padding: 0.9rem;
+    border-top: 1px solid var(--light-border);
+    background: white;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    border-radius: 22px;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.input-wrapper:focus-within {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.emoji-btn, .attach-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.15rem;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--text-muted);
+    transition: background 0.2s, color 0.2s;
+}
+
+.emoji-btn:hover, .attach-btn:hover {
+    background: rgba(79, 70, 229, 0.08);
+    color: var(--primary);
+}
+
+.chat-input input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 0.9rem;
+    padding: 2px;
+    color: var(--text-main);
+}
+
+.send-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.send-btn:hover {
+    background: var(--primary-hover);
+    transform: scale(1.05);
+}
+
+.send-btn:active {
+    transform: scale(0.95);
+}
+
+.send-icon {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Emoji Picker styling */
+.emoji-picker {
+    position: fixed;
+    bottom: 110px;
+    right: 40px;
+    width: 260px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+    z-index: 1001;
+    border: 1px solid var(--light-border);
+}
+
+.emoji-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--light-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.close-emoji {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.emoji-grid {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(350px, 1fr);
-    gap: 2rem;
-    align-items: start;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 8px;
 }
 
-/* ==========================
-   TABLET
-========================== */
+.emoji-item {
+    font-size: 1.25rem;
+    padding: 6px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
 
-@media (max-width: 992px) {
-    .dashboard-grid {
+.emoji-item:hover {
+    background: #f1f5f9;
+    transform: scale(1.15);
+}
+
+.file-attachment {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-size: 0.85rem;
+}
+
+.file-icon { font-size: 0.95rem; }
+.file-name { font-weight: 600; color: var(--text-main); }
+.file-size { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .dashboard-content-grid {
         grid-template-columns: 1fr;
-    }
-
-    .profile-card {
-        max-width: 100%;
+        gap: 1.5rem;
     }
 }
-
-/* ==========================
-   MOBILE
-========================== */
 
 @media (max-width: 768px) {
-    .profile-item {
-        grid-template-columns: 1fr;
-        gap: 0.4rem;
+    .sidebar-toggle {
+        display: flex;
     }
-
-    .profile-item .value {
-        text-align: left;
+    
+    .dashboard-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+    
+    .dashboard-sidebar.mobile-open {
+        transform: translateX(0);
+        box-shadow: 10px 0 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .sidebar-close-btn {
+        display: block;
+    }
+    
+    .dashboard-main {
+        padding: 1.5rem;
+    }
+    
+    .dashboard-top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .welcome-heading h1 {
+        font-size: 1.8rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .popup-window {
+        width: calc(100% - 30px);
+        right: 15px;
+        left: 15px;
+        bottom: 85px;
+        height: calc(100% - 150px);
+    }
+    
+    .emoji-picker {
+        width: 250px;
+        right: 15px;
     }
 }
-.moderator-card {
-    grid-column: 1 / -1;
-    order: -1; /* Ensures it sits above Quick Actions alongside Admin tools */
+
+/* === 2-column metrics grid variant === */
+.metrics-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.metric-icon.val-red { background: #fef2f2; }
+
+/* === Dashboard Table === */
+.dash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.dash-table thead {
+    background: #f8fafc;
+    border-bottom: 2px solid var(--light-border);
+}
+
+.dash-table th {
+    padding: 0.75rem 1.25rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+.dash-table td {
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.dash-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.dash-table tbody tr:hover td {
+    background: #fafcff;
+}
+
+/* === Dash Empty State === */
+.dash-empty-state {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* === Dash Action Button === */
+.dash-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--primary);
+    color: white;
+    padding: 0.55rem 1.1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-right: 0.5rem;
+}
+
+.dash-action-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.dash-action-btn.outline-btn {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+}
+
+.dash-action-btn.outline-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* === Dash Badge === */
+.dash-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.dash-badge.danger {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+/* === Rehab Risk Card === */
+.rehab-risk-card {
+    background: var(--card-bg);
+    border: 1px solid var(--light-border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.rehab-risk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.rehab-risk-header strong {
+    color: var(--text-main);
+    font-size: 1rem;
+}
+
+.rehab-risk-bar {
+    background: #e2e8f0;
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.rehab-risk-fill {
+    height: 100%;
+    border-radius: 10px;
+    width: 0;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === Rehab Detail Grid === */
+.rehab-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.rehab-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid var(--light-border);
+}
+
+.rehab-detail-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.rehab-detail-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* === Rehab Activities === */
+.rehab-activities {
+    margin-bottom: 1.25rem;
+}
+
+.rehab-activity-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.rehab-activity-tag {
+    background: #e0e7ff;
+    color: var(--primary);
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* === Rehab Progress Section === */
+.rehab-progress-section {
+    border-top: 1px solid var(--light-border);
+    padding-top: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.rehab-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    flex-wrap: wrap;
+}
+
+.rehab-progress-row:last-child {
+    border-bottom: none;
+}
+
+.rehab-progress-date {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 50px;
+}
+
+.rehab-progress-stat {
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+/* === Rehab Plan Actions === */
+.rehab-plan-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--light-border);
+}
+
+@media (max-width: 768px) {
+    .rehab-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .dash-table th, .dash-table td {
+        padding: 0.6rem 0.9rem;
+    }
 }
 
 </style>
 {% endblock %}
 
+
 {% block content %}
-<div class="dashboard">
-    <div class="container">
-        <div class="dashboard-header">
-            <div class="header-content">
-                <div class="greeting">
-                    <h1>Welcome back, {{ user.username }}!</h1>
-                    <p class="subtitle">Here's what's happening today</p>
-                </div>
-                <div class="role-badge-wrapper">
-                    <span class="role-badge">{{ user.get_role_display }}</span>
-                </div>
+<div class="dashboard-layout">
+    <!-- Sidebar Toggle Button for Mobile -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle Navigation" id="sidebar-toggle-btn">
+        <svg viewBox="0 0 24 24" class="toggle-icon">
+            <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+        </svg>
+    </button>
+
+    <!-- Left Sidebar Panel -->
+    <aside class="dashboard-sidebar" id="dashboard-sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <svg class="brand-icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M4.5,10.5C3.67,10.5 3,11.17 3,12C3,12.83 3.67,13.5 4.5,13.5C5.33,13.5 6,12.83 6,12C6,11.17 5.33,10.5 4.5,10.5M19.5,10.5C18.67,10.5 18,11.17 18,12C18,12.83 18.67,13.5 19.5,13.5C20.33,13.5 21,12.83 21,12C21,11.17 20.33,10.5 19.5,10.5M10.5,4.5C9.67,4.5 9,5.17 9,6C9,6.83 9.67,7.5 10.5,7.5C11.33,7.5 12,6.83 12,6C12,5.17 11.33,4.5 10.5,4.5M10.5,16.5C9.67,16.5 9,17.17 9,18C9,18.83 9.67,19.5 10.5,19.5C11.33,19.5 12,18.83 12,18C12,17.17 11.33,16.5 10.5,16.5M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z" />
+                </svg>
+                <span>E-Drug Panel</span>
+            </div>
+            <button class="sidebar-close-btn" onclick="toggleSidebar()" aria-label="Close sidebar">×</button>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                <span>{{ user.username|slice:":1"|upper }}</span>
+            </div>
+            <div class="user-meta">
+                <div class="user-name">{{ user.username }}</div>
+                <div class="user-badge">{{ user.get_role_display }}</div>
             </div>
         </div>
 
-        <div class="dashboard-grid">
+        <nav class="sidebar-nav">
+            <!-- Admin tools -->
             {% if user.is_admin %}
-            <div class="dashboard-card admin-card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <div class="icon-wrapper danger">
-                            <span class="icon">🔧</span>
-                        </div>
-                        <h3>Admin Tools</h3>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <ul class="action-list">
-                        <li><a href="{% url 'admin_create_user' %}"><span class="action-icon">👤</span> Create Admin/Moderator/Expert</a></li>
-                        <li><a href="{% url 'admin_pending_users' %}" class="featured-action expert-action"><span class="action-icon">⏳</span> Pending Users</a></li>
-                        <li><a href="{% url 'admin_assessment_list' %}"><span class="action-icon">📋</span> Manage Assessments</a></li>
-                        <li><a href="{% url 'monitor_user_progress' %}"><span class="action-icon">📈</span> Monitor User Progress</a></li>
-                        <li><a href="/admin/"><span class="action-icon">⚙️</span> Admin Panel</a></li>
-                        <li><a href="{% url 'drug_list' %}"><span class="action-icon">💊</span> Manage Drugs</a></li>
-                        <li><a href="{% url 'rehab_centers' %}"><span class="action-icon">🏥</span> Verify Centers</a></li>
-                    </ul>
-                </div>
+            <div class="nav-section">
+                <span class="nav-section-title">Admin tools</span>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="{% url 'admin_create_user' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M15,14C12.33,14 7,15.33 7,18V20H23V18C23,15.33 17.67,14 15,14M6,10V7H4V10H1V12H4V15H6V12H9V10M15,12A4,4 0 0,0 19,8A4,4 0 0,0 15,4A4,4 0 0,0 11,8A4,4 0 0,0 15,12Z" /></svg>
+                            <span>Create Admin/Mod/Expert</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_pending_users' %}" class="nav-link-item active-special">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" /></svg>
+                            <span>Pending Users</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_assessment_list' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M19 19H5V5H19V19M10 17H14V15H10V17M10 13H17V11H10V13M10 9H17V7H10V9Z" /></svg>
+                            <span>Manage Assessments</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'monitor_user_progress' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" /></svg>
+                            <span>Monitor User Progress</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.47,5.34 14.86,5.08L14.48,2.42C14.44,2.18 14.23,2 14,2H10C9.77,2 9.56,2.18 9.52,2.42L9.14,5.08C8.53,5.34 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.95C7.96,18.34 8.53,18.66 9.14,18.92L9.52,21.58C9.56,21.82 9.77,22 10,22H14C14.23,22 14.44,21.82 14.48,21.58L14.86,18.92C15.47,18.66 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" /></svg>
+                            <span>Admin Panel</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'drug_list' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5,10.5C3.67,10.5 3,11.17 3,12C3,12.83 3.67,13.5 4.5,13.5C5.33,13.5 6,12.83 6,12C6,11.17 5.33,10.5 4.5,10.5M19.5,10.5C18.67,10.5 18,11.17 18,12C18,12.83 18.67,13.5 19.5,13.5C20.33,13.5 21,12.83 21,12C21,11.17 20.33,10.5 19.5,10.5M12,4.5C11.17,4.5 10.5,5.17 10.5,6C10.5,6.83 11.17,7.5 12,7.5C12.83,7.5 13.5,6.83 13.5,6C13.5,5.17 12.83,4.5 12,4.5M12,16.5C11.17,16.5 10.5,17.17 10.5,18C10.5,18.83 11.17,19.5 12,19.5C12.83,19.5 13.5,18.83 13.5,18C13.5,17.17 12.83,16.5 12,16.5M12,9C10.34,9 9,10.34 9,12C9,13.66 10.34,15 12,15C13.66,15 15,13.66 15,12C15,10.34 13.66,9 12,9M12,10.5A1.5,1.5 0 0,1 13.5,12A1.5,1.5 0 0,1 12,13.5A1.5,1.5 0 0,1 10.5,12A1.5,1.5 0 0,1 12,10.5Z" /></svg>
+                            <span>Manage Drugs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'rehab_centers' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2C15.86,2 19,5.14 19,9C19,14.25 12,22 12,22C12,22 5,14.25 5,9C5,5.14 8.14,2 12,2M12,4C9.24,4 7,6.24 7,9C7,11.85 9.79,15.86 12,18.66C14.21,15.86 17,11.85 17,9C17,6.24 14.76,4 12,4M11.5,6V8H9.5V10H11.5V12H13.5V10H15.5V8H13.5V6H11.5Z" /></svg>
+                            <span>Verify Centers</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
             {% endif %}
-            
 
+            <!-- Expert tools -->
             {% if user.is_expert %}
-            <!-- Expert Tools Box -->
-            <div class="dashboard-card expert-tools-card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <div class="icon-wrapper info">
-                            <span class="icon">🎓</span>
-                        </div>
-                        <h3>Expert Tools</h3>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <ul class="action-list">
-                        <li><a href="{% url 'expert_dashboard' %}" class="featured-action expert-action"><span class="action-icon">📊</span> Expert Dashboard</a></li>
-                        <li><a href="{% url 'create_verified_post' %}" class="featured-action expert-action"><span class="action-icon">✓</span> Create Verified Post</a></li>
-                        <li><a href="{% url 'high_risk_users' %}" class="featured-action expert-action"><span class="action-icon">⚠️</span> View High-Risk Users</a></li>
-                        <li><a href="{% url 'monitor_user_progress' %}" class="featured-action expert-action"><span class="action-icon">📈</span> Monitor User Progress</a></li>
-                    </ul>
-                </div>
+            <div class="nav-section">
+                <span class="nav-section-title">Expert Tools</span>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="{% url 'expert_dashboard' %}" class="nav-link-item active-special">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V5H19V19M7,10H9V17H7V10M11,7H13V17H11V7M15,13H17V17H15V13Z" /></svg>
+                            <span>Expert Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'create_verified_post' %}" class="nav-link-item active-special">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2C6.5,2 2,6.5 2,12C2,17.5 6.5,22 12,22C17.5,22 22,17.5 22,12C22,6.5 17.5,2 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M16.59,7.58L10,14.17L7.41,11.59L6,13L10,17L18,9L16.59,7.58Z" /></svg>
+                            <span>Create Verified Post</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'high_risk_users' %}" class="nav-link-item active-special">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2L1,21H23L12,2M12,6L19.53,19H4.47L12,6M11,10V14H13V10H11M11,16V18H13V16H11Z" /></svg>
+                            <span>View High-Risk Users</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'monitor_user_progress' %}" class="nav-link-item active-special">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" /></svg>
+                            <span>Monitor User Progress</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
             {% endif %}
+
+            <!-- Moderator tools -->
             {% if user.is_moderator and not user.is_admin %}
-            <div class="dashboard-card moderator-card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <div class="icon-wrapper warning">
-                            <span class="icon">🛡️</span>
-                        </div>
-                        <h3>Moderator Tools</h3>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <ul class="action-list">
-                        <li><a href="{% url 'moderator_dashboard' %}"><span class="action-icon">📊</span> Moderator Dashboard</a></li>
-                        <li><a href="{% url 'reported_posts' %}"><span class="action-icon">🚩</span> Review Reports</a></li>
-                    </ul>
-                </div>
+            <div class="nav-section">
+                <span class="nav-section-title">Moderator Tools</span>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="{% url 'moderator_dashboard' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2C17.5,2 22,6.5 22,12C22,17.5 17.5,22 12,22C6.5,22 2,17.5 2,12C2,6.5 6.5,2 12,2M12,4C7.58,4 4,7.58 4,12C4,16.42 7.58,20 12,20C16.42,20 20,16.42 20,12C20,7.58 16.42,4 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z" /></svg>
+                            <span>Moderator Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'reported_posts' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12.41,2.58L21.42,11.59C21.8,11.97 22,12.49 22,13C22,13.5 21.8,14 21.42,14.39L14.39,21.42C14,21.8 13.5,22 13,22C12.49,22 11.97,21.8 11.59,21.42L2.58,12.41C2.2,12.03 2,11.5 2,11V4C2,2.89 2.89,2 4,2H11C11.5,2 12.03,2.2 12.41,2.58M13,20L20,13L13,6V9C7.47,9 5.82,12.23 5,16C7.23,13.78 9.53,13 13,13V16L13,20M7.5,6C8.33,6 9,5.33 9,4.5C9,3.67 8.33,3 7.5,3C6.67,3 6,3.67 6,4.5C6,5.33 6.67,6 7.5,6Z" /></svg>
+                            <span>Review Reports</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
             {% endif %}
-            <!-- Regular Actions Box -->
-            <div class="dashboard-card regular-actions-card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <div class="icon-wrapper primary">
-                            <span class="icon">⚡</span>
+
+            <!-- Quick Actions -->
+            <div class="nav-section">
+                <span class="nav-section-title">Quick Actions</span>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="{% url 'create_post' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M14.06,9L15,9.94L5.92,19H5V18.08L14.06,9M17.66,3C17.41,3 17.15,3.1 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18.17,3.09 17.92,3 17.66,3M14.06,6.19L3,17.25V21H6.75L17.81,9.94L14.06,6.19Z" /></svg>
+                            <span>Create Post</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'post_list' %}" class="nav-link-item featured-nav posts-nav">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19 5V19H5V5H19M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M14 17H7V15H14V17M17 13H7V11H17V13M17 9H7V7H17V9Z" /></svg>
+                            <span>View Posts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'messages' %}" class="nav-link-item featured-nav messages-nav">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M20,2H4C2.9,2 2,2.9 2,4V22L6,18H20C21.1,18 22,17.1 22,16V4C22,2.9 21.1,2 20,2M20,16H5.17L4,17.17V4H20V16Z" /></svg>
+                            <span>Messages</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'chatbot' %}" class="nav-link-item featured-nav ai-nav">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4M12,18A6,6 0 0,1 6,12C6,10.05 6.93,8.32 8.38,7.24L9.8,8.66C8.69,9.45 8,10.74 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12C16,10.74 15.31,9.45 14.2,8.66L15.62,7.24C17.07,8.32 18,10.05 18,12A6,6 0 0,1 12,18Z" /></svg>
+                            <span>Talk to AI Assistant</span>
+                        </a>
+                    </li>
+                    
+                    {% if not user.is_expert and not user.is_moderator and not user.is_admin %}
+                    <li>
+                        <a href="{% url 'assessment_list' %}" class="nav-link-item featured-nav assessment-nav">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M19 19H5V5H19V19M10 17H14V15H10V17M10 13H17V11H10V13M10 9H17V7H10V9Z" /></svg>
+                            <span>Take Assessment</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'assessment_reports' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,6H13V12H11V6M11,14H13V16H11V14Z" /></svg>
+                            <span>View Assessment Reports</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'create_rehabilitation_plan' %}" class="nav-link-item featured-nav rehab-nav">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z" /></svg>
+                            <span>Create Rehab Plan</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'drug_list' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5,10.5C3.67,10.5 3,11.17 3,12C3,12.83 3.67,13.5 4.5,13.5C5.33,13.5 6,12.83 6,12C6,11.17 5.33,10.5 4.5,10.5M19.5,10.5C18.67,10.5 18,11.17 18,12C18,12.83 18.67,13.5 19.5,13.5C20.33,13.5 21,12.83 21,12C21,11.17 20.33,10.5 19.5,10.5Z" /></svg>
+                            <span>Browse Drug Information</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'rehab_centers' %}" class="nav-link-item">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2C15.86,2 19,5.14 19,9C19,14.25 12,22 12,22C12,22 5,14.25 5,9C5,5.14 8.14,2 12,2M12,4C9.24,4 7,6.24 7,9C7,11.85 9.79,15.86 12,18.66C14.21,15.86 17,11.85 17,9" /></svg>
+                            <span>Find Rehab Centers</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="dashboard-main">
+        <header class="dashboard-top-bar">
+            <div class="welcome-heading">
+                <h1>Welcome back, <span class="highlight-user">{{ user.username }}</span>!</h1>
+                <p class="subtitle-text">Here's your comprehensive road map and status overview.</p>
+            </div>
+            <div class="role-display">
+                <span class="role-dot"></span>
+                <span class="role-name">{{ user.get_role_display }}</span>
+            </div>
+        </header>
+
+        <div class="dashboard-content-grid">
+            <!-- Left Side: System Metrics / Welcome Panel -->
+            <div class="overview-column">
+
+                {% if user.is_admin %}
+                <!-- ===== ADMIN: Monitor User Progress ===== -->
+                <div class="metrics-grid metrics-grid-2">
+                    <div class="metric-card">
+                        <div class="metric-icon val-blue">👥</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Users with Active Plans</h4>
+                            <span class="metric-value">{{ users_with_plans }}</span>
                         </div>
-                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon val-red">🚨</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Flagged Progress Entries</h4>
+                            <span class="metric-value">{{ flagged_progress|length }}</span>
+                        </div>
                     </div>
                 </div>
-                <div class="card-content">
-                    <ul class="action-list">
-                        <li><a href="{% url 'create_post' %}"><span class="action-icon">✍️</span> Create Post</a></li>
-                        <li><a href="{% url 'post_list' %}" class="featured-action posts-action"><span class="action-icon">📝</span> View Posts</a></li>
-                        <li><a href="{% url 'messages' %}" class="featured-action messages-action"><span class="action-icon">💬</span> Messages</a></li>
-                        <li><a href="{% url 'chatbot' %}" class="featured-action ai-action"><span class="action-icon">🤖</span> Talk to AI Assistant</a></li>
-                        {% if not user.is_expert and not user.is_moderator and not user.is_admin %}
-                        <li><a href="{% url 'assessment_list' %}" class="featured-action assessment-action"><span class="action-icon">📋</span> Take Assessment</a></li>
-                        <li><a href="{% url 'assessment_reports' %}"><span class="action-icon">📊</span> View Assessment Reports</a></li>
-                        <li><a href="{% url 'create_rehabilitation_plan' %}" class="featured-action rehab-action"><span class="action-icon">🎯</span> Create Rehab Plan</a></li>
-                        <li><a href="{% url 'drug_list' %}"><span class="action-icon">💊</span> Browse Drug Information</a></li>
-                        <li><a href="{% url 'rehab_centers' %}"><span class="action-icon">🏥</span> Find Rehab Centers</a></li>
+                <div class="info-block-card">
+                    <div class="info-card-header">
+                        <h3>📈 Recent Self-Harm Flags</h3>
+                    </div>
+                    <div class="info-card-body" style="padding: 0;">
+                        {% if flagged_progress %}
+                        <table class="dash-table">
+                            <thead>
+                                <tr><th>User</th><th>Date</th><th>Mood</th><th>Confidence</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for p in flagged_progress %}
+                                <tr>
+                                    <td><strong>{{ p.rehabilitation_plan.user.username }}</strong></td>
+                                    <td>{{ p.date|date:"M d, Y" }}</td>
+                                    <td>{{ p.mood_rating }}/5</td>
+                                    <td>{{ p.confidence_rating }}/5</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="dash-empty-state">✅ No flagged entries at this time.</div>
                         {% endif %}
-                    </ul>
+                    </div>
+                    <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--light-border);">
+                        <a href="{% url 'monitor_user_progress' %}" class="dash-action-btn">View Full Monitor →</a>
+                    </div>
                 </div>
+
+                {% elif user.is_expert %}
+                <!-- ===== EXPERT: Expert Dashboard Stats ===== -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon val-red">⚠️</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">High-Risk Users</h4>
+                            <span class="metric-value">{{ high_risk_users }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon val-blue">📋</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Total Assessments</h4>
+                            <span class="metric-value">{{ total_assessments }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon val-purple">✅</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Verified Posts</h4>
+                            <span class="metric-value">{{ verified_posts_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-block-card">
+                    <div class="info-card-header">
+                        <h3>🔴 Recent Critical Assessments</h3>
+                    </div>
+                    <div class="info-card-body" style="padding: 0;">
+                        {% if recent_critical_assessments %}
+                        <table class="dash-table">
+                            <thead>
+                                <tr><th>User</th><th>Date</th><th>Severity</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for a in recent_critical_assessments %}
+                                <tr>
+                                    <td><strong>{{ a.user.username }}</strong></td>
+                                    <td>{{ a.created_at|date:"M d, Y" }}</td>
+                                    <td><span class="dash-badge danger">{{ a.severity_level }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="dash-empty-state">✅ No critical assessments found.</div>
+                        {% endif %}
+                    </div>
+                    <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--light-border);">
+                        <a href="{% url 'expert_dashboard' %}" class="dash-action-btn">View Expert Dashboard →</a>
+                    </div>
+                </div>
+
+                {% elif user.is_moderator and not user.is_admin %}
+                <!-- ===== MODERATOR: Moderation Stats ===== -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon val-blue">📑</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Total Reports</h4>
+                            <span class="metric-value">{{ total_reports }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon val-red">🕐</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Pending Reviews</h4>
+                            <span class="metric-value">{{ pending_reports }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon val-purple">🚫</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Flagged Fake Posts</h4>
+                            <span class="metric-value">{{ fake_posts }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-block-card">
+                    <div class="info-card-header">
+                        <h3>🚩 Pending Reports</h3>
+                    </div>
+                    <div class="info-card-body" style="padding: 0;">
+                        {% if recent_reports %}
+                        <table class="dash-table">
+                            <thead>
+                                <tr><th>Post</th><th>Reported By</th><th>Date</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for r in recent_reports %}
+                                <tr>
+                                    <td><a href="{% url 'post_detail' r.post.pk %}" style="color: var(--primary); text-decoration: none;">{{ r.post.title|truncatechars:30 }}</a></td>
+                                    <td>{{ r.user.username }}</td>
+                                    <td>{{ r.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="dash-empty-state">✅ No pending reports right now.</div>
+                        {% endif %}
+                    </div>
+                    <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--light-border);">
+                        <a href="{% url 'moderator_dashboard' %}" class="dash-action-btn">View Moderator Dashboard →</a>
+                    </div>
+                </div>
+
+                {% else %}
+                <!-- ===== REGULAR USER: Rehabilitation Plan ===== -->
+                {% if rehab_plan %}
+                <!-- Plan exists - show details inline -->
+                <div class="metrics-grid metrics-grid-2">
+                    <div class="metric-card">
+                        <div class="metric-icon val-green">🎯</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Risk Level</h4>
+                            <span class="metric-value">{{ rehab_plan.risk_level }}%</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon val-blue">📆</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Days Active</h4>
+                            <span class="metric-value">{{ daily_progress|length }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Progress Bar -->
+                <div class="rehab-risk-card">
+                    <div class="rehab-risk-header">
+                        <span>Recovery Risk Level</span>
+                        <strong>{{ rehab_plan.risk_level }}%</strong>
+                    </div>
+                    <div class="rehab-risk-bar">
+                        <div class="rehab-risk-fill" data-risk="{{ rehab_plan.risk_level }}"></div>
+                    </div>
+                </div>
+
+                <!-- Plan Goals -->
+                <div class="info-block-card">
+                    <div class="info-card-header">
+                        <h3>🎯 Your Rehabilitation Plan</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <div class="rehab-detail-grid">
+                            <div class="rehab-detail-item">
+                                <span class="rehab-detail-label">Primary Goal</span>
+                                <span class="rehab-detail-value">{{ rehab_plan.get_primary_goal_display }}</span>
+                            </div>
+                            <div class="rehab-detail-item">
+                                <span class="rehab-detail-label">Short-term (7 days)</span>
+                                <span class="rehab-detail-value">{{ rehab_plan.short_term_goal }}</span>
+                            </div>
+                            <div class="rehab-detail-item">
+                                <span class="rehab-detail-label">Long-term (30-60 days)</span>
+                                <span class="rehab-detail-value">{{ rehab_plan.long_term_goal }}</span>
+                            </div>
+                            <div class="rehab-detail-item">
+                                <span class="rehab-detail-label">Activity Frequency</span>
+                                <span class="rehab-detail-value">{{ rehab_plan.get_activity_frequency_display }}</span>
+                            </div>
+                        </div>
+
+                        {% if rehab_plan.activities %}
+                        <div class="rehab-activities">
+                            <span class="rehab-detail-label">Activities</span>
+                            <div class="rehab-activity-tags">
+                                {% for activity in rehab_plan.activities %}
+                                <span class="rehab-activity-tag">{{ activity }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Recent Progress -->
+                        {% if daily_progress %}
+                        <div class="rehab-progress-section">
+                            <span class="rehab-detail-label" style="display:block; margin-bottom: 0.75rem;">Recent Progress</span>
+                            {% for p in daily_progress %}
+                            <div class="rehab-progress-row">
+                                <span class="rehab-progress-date">{{ p.date|date:"M d" }}</span>
+                                <span class="rehab-progress-stat">Mood: <strong>{{ p.mood_rating }}/5</strong></span>
+                                <span class="rehab-progress-stat">Confidence: <strong>{{ p.confidence_rating }}/5</strong></span>
+                                {% if p.self_harm_detected %}<span class="dash-badge danger">⚠️ Flagged</span>{% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="rehab-plan-actions">
+                            <a href="{% url 'view_rehabilitation_plan' rehab_plan.id %}" class="dash-action-btn">View Full Plan →</a>
+                            <a href="{% url 'submit_daily_progress' rehab_plan.id %}" class="dash-action-btn outline-btn">Submit Today's Progress</a>
+                        </div>
+                    </div>
+                </div>
+
+                {% else %}
+                <!-- No plan yet - Getting started info -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon val-blue">🤖</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">AI assistant</h4>
+                            <span class="metric-value">Connected</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon val-green">🛡️</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">Privacy Shield</h4>
+                            <span class="metric-value">Active</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon val-purple">📝</div>
+                        <div class="metric-info">
+                            <h4 class="metric-title">System Status</h4>
+                            <span class="metric-value">Online</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-block-card">
+                    <div class="info-card-header">
+                        <h3>ℹ️ Getting Started</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <p>Welcome to the <strong>E-Drug Awareness &amp; Rehabilitation Portal</strong>. We are committed to providing you with safe, private, and AI-enabled resources to support drug awareness and recovery mapping.</p>
+                        <p>Use the left navigation sidebar to browse drug files, find verified rehab facilities, submit health reports, or take self-assessments. If you need any instant guidance, our AI Assistant is standing by.</p>
+                        <div class="tip-banner">
+                            <span class="tip-icon">💡</span>
+                            <span class="tip-text"><strong>Quick Tip:</strong> Create a <a href="{% url 'create_rehabilitation_plan' %}" style="color: #92400e;">Rehabilitation Plan</a> to start tracking your recovery journey with AI-powered insights.</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+
             </div>
 
-            <div class="dashboard-card profile-card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <div class="icon-wrapper success">
-                            <span class="icon">👤</span>
+            <!-- Right Side: User Profile Card -->
+            <div class="profile-column">
+                <div class="dashboard-card profile-card">
+                    <div class="card-header">
+                        <div class="header-left">
+                            <div class="icon-wrapper">
+                                <span class="icon">👤</span>
+                            </div>
+                            <h3>Your Profile</h3>
                         </div>
-                        <h3>Your Profile</h3>
                     </div>
-                </div>
-                <div class="card-content">
-                    <div class="profile-details">
-                        <div class="profile-item">
-                            <span class="label">Email</span>
-                            <span class="value">{{ user.email }}</span>
+                    <div class="card-content">
+                        <div class="profile-details">
+                            <div class="profile-item">
+                                <span class="label">Email</span>
+                                <span class="value">{{ user.email }}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="label">First Name</span>
+                                <span class="value">{{ user.first_name }}</span>
+                            </div>
+                            <div class="profile-item">
+                                <span class="label">Last Name</span>
+                                <span class="value">{{ user.last_name }}</span>
+                            </div>
+                            {% if user.phone %}
+                            <div class="profile-item">
+                                <span class="label">Phone</span>
+                                <span class="value">{{ user.phone }}</span>
+                            </div>
+                            {% endif %}
                         </div>
-                        <div class="profile-item">
-                            <span class="label">First Name</span>
-                            <span class="value">{{ user.first_name }}</span>
-                        </div>
-                        <div class="profile-item">
-                            <span class="label">Last Name</span>
-                            <span class="value">{{ user.last_name }}</span>
-                        </div>
-                        {% if user.phone %}
-                        <div class="profile-item">
-                            <span class="label">Phone</span>
-                            <span class="value">{{ user.phone }}</span>
-                        </div>
-                        {% endif %}
+                        <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-edit-profile">
+                            <span class="icon">✏️</span> Edit Profile
+                        </a>
                     </div>
-                    <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-edit-profile">
-                        <span class="icon">✏️</span> Edit Profile
-                    </a>
                 </div>
             </div>
-
-            <!-- {% if user.is_moderator and not user.is_admin %}
-            <div class="dashboard-card moderator-card">
-                <div class="card-header">
-                    <div class="header-left">
-                        <div class="icon-wrapper warning">
-                            <span class="icon">🛡️</span>
-                        </div>
-                        <h3>Moderator Tools</h3>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <ul class="action-list">
-                        <li><a href="{% url 'moderator_dashboard' %}"><span class="action-icon">📊</span> Moderator Dashboard</a></li>
-                        <li><a href="{% url 'reported_posts' %}"><span class="action-icon">🚩</span> Review Reports</a></li>
-                    </ul>
-                </div>
-            </div>
-            {% endif %} -->
         </div>
-    </div>
+    </main>
 </div>
 
 <!-- Floating Icons -->
@@ -944,679 +1906,13 @@
     </div>
 </div>
 
-<style>
-/* Floating Icons */
-.floating-icons {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    z-index: 1000;
-}
-
-.floating-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.floating-icon:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
-
-.floating-icon .icon {
-    font-size: 24px;
-}
-
-.messages-icon {
-    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-}
-
-.chat-icon {
-    background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
-}
-
-.badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #ff4444;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* Popup Windows */
-.popup-window {
-    position: fixed;
-    bottom: 100px;
-    right: 30px;
-    width: 350px;
-    height: 450px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    display: none;
-    flex-direction: column;
-    z-index: 999;
-}
-
-.popup-window.active {
-    display: flex;
-}
-
-.popup-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.popup-header h3 {
-    margin: 0;
-    font-size: 18px;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.3s ease;
-}
-
-.close-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.popup-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-/* Enhanced Chat Popup Styles */
-.chat-popup {
-    width: 380px;
-    height: 500px;
-}
-
-.chat-header-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.ai-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.avatar-icon {
-    font-size: 20px;
-}
-
-.ai-status {
-    display: flex;
-    flex-direction: column;
-}
-
-.ai-status h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.status-indicator {
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.status-indicator.online {
-    color: #4caf50;
-}
-
-.popup-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.action-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s ease;
-}
-
-.action-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    background: #fafafa;
-}
-
-.ai-message, .user-message {
-    display: flex;
-    gap: 10px;
-    max-width: 85%;
-    animation: messageSlide 0.3s ease;
-}
-
-@keyframes messageSlide {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.ai-message {
-    align-self: flex-start;
-}
-
-.user-message {
-    align-self: flex-end;
-    flex-direction: row-reverse;
-}
-
-.message-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #e3f2fd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-.user-message .message-avatar {
-    background: #007bff;
-    color: white;
-}
-
-.message-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.message-text {
-    padding: 12px 16px;
-    border-radius: 18px;
-    word-wrap: break-word;
-    line-height: 1.4;
-    background: white;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.ai-message .message-text {
-    background: white;
-    color: #333;
-    border-bottom-left-radius: 4px;
-}
-
-.user-message .message-text {
-    background: #007bff;
-    color: white;
-    border-bottom-right-radius: 4px;
-}
-
-.message-time {
-    font-size: 11px;
-    color: #999;
-    padding: 0 4px;
-}
-
-.user-message .message-time {
-    text-align: right;
-}
-
-.typing-indicator {
-    padding: 10px 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #666;
-    font-size: 14px;
-}
-
-.typing-dots {
-    display: flex;
-    gap: 4px;
-}
-
-.typing-dots span {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #007bff;
-    animation: typing 1.4s infinite;
-}
-
-.typing-dots span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-dots span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes typing {
-    0%, 60%, 100% {
-        transform: translateY(0);
-    }
-    30% {
-        transform: translateY(-10px);
-    }
-}
-
-.chat-input {
-    padding: 15px;
-    border-top: 1px solid #eee;
-    background: white;
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-}
-
-.input-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #f8f9fa;
-    border-radius: 20px;
-    padding: 8px 12px;
-    border: 1px solid #e9ecef;
-    transition: border-color 0.3s ease;
-}
-
-.input-wrapper:focus-within {
-    border-color: #007bff;
-    background: white;
-}
-
-.emoji-btn, .attach-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 4px;
-    border-radius: 50%;
-    transition: background 0.3s ease;
-}
-
-.emoji-btn:hover, .attach-btn:hover {
-    background: rgba(0, 123, 255, 0.1);
-}
-
-.chat-input input {
-    flex: 1;
-    border: none;
-    background: none;
-    outline: none;
-    font-size: 14px;
-    padding: 4px;
-}
-
-.send-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
-    background: #007bff;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.send-btn:hover {
-    background: #0056b3;
-    transform: scale(1.05);
-}
-
-.send-btn:active {
-    transform: scale(0.95);
-}
-
-.send-icon {
-    font-size: 16px;
-}
-
-/* Emoji Picker */
-.emoji-picker {
-    position: fixed;
-    bottom: 120px;
-    right: 50px;
-    width: 280px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    z-index: 1001;
-    border: 1px solid #e9ecef;
-}
-
-.emoji-header {
-    padding: 12px 16px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 600;
-}
-
-.close-emoji {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #666;
-}
-
-.emoji-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    padding: 12px;
-}
-
-.emoji-item {
-    font-size: 24px;
-    padding: 8px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: background 0.3s ease;
-}
-
-.emoji-item:hover {
-    background: #f8f9fa;
-    transform: scale(1.2);
-}
-
-/* Enhanced Message Item Styles */
-.message-item {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    transition: background 0.3s ease;
-}
-
-.message-item:hover {
-    background: #f8f9fa;
-}
-
-.message-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.message-sender {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-}
-
-.user-role {
-    background: #007bff;
-    color: white;
-    padding: 2px 6px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 500;
-}
-
-.message-time {
-    font-size: 12px;
-    color: #666;
-}
-
-.message-content {
-    margin-bottom: 8px;
-    line-height: 1.4;
-}
-
-.message-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.btn-sm {
-    padding: 4px 12px;
-    font-size: 12px;
-}
-
-/* File attachment styles */
-.file-attachment {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.file-icon {
-    font-size: 16px;
-}
-
-.file-name {
-    font-weight: 500;
-    color: #333;
-}
-
-.file-size {
-    font-size: 12px;
-    color: #666;
-}
-
-/* Enhanced Responsive */
-@media (max-width: 768px) {
-    .floating-icons {
-        bottom: 20px;
-        right: 20px;
-    }
-    
-    .floating-icon {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .floating-icon .icon {
-        font-size: 20px;
-    }
-    
-    .popup-window {
-        width: 95%;
-        right: 2.5%;
-        left: 2.5%;
-        height: 70vh;
-        max-height: 500px;
-    }
-    
-    .chat-popup {
-        width: 100%;
-        height: 100%;
-        border-radius: 12px 12px 0 0;
-        bottom: 0;
-        right: 0;
-        left: 0;
-    }
-    
-    .chat-header-info {
-        gap: 8px;
-    }
-    
-    .ai-avatar {
-        width: 32px;
-        height: 32px;
-    }
-    
-    .avatar-icon {
-        font-size: 16px;
-    }
-    
-    .ai-status h3 {
-        font-size: 14px;
-    }
-    
-    .chat-messages {
-        padding: 10px;
-        gap: 10px;
-    }
-    
-    .message-avatar {
-        width: 28px;
-        height: 28px;
-        font-size: 14px;
-    }
-    
-    .message-text {
-        padding: 10px 12px;
-        font-size: 14px;
-    }
-    
-    .message-time {
-        font-size: 10px;
-    }
-    
-    .chat-input {
-        padding: 10px;
-        gap: 8px;
-    }
-    
-    .input-wrapper {
-        padding: 6px 10px;
-    }
-    
-    .emoji-btn, .attach-btn {
-        font-size: 16px;
-        padding: 2px;
-    }
-    
-    .send-btn {
-        width: 36px;
-        height: 36px;
-    }
-    
-    .send-icon {
-        font-size: 14px;
-    }
-    
-    .emoji-picker {
-        width: 90%;
-        right: 5%;
-        left: 5%;
-        bottom: 100px;
-    }
-    
-    .emoji-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2px;
-        padding: 8px;
-    }
-    
-    .emoji-item {
-        font-size: 20px;
-        padding: 6px;
-    }
-}
-
-@media (max-width: 480px) {
-    .popup-window {
-        height: 80vh;
-        max-height: none;
-    }
-    
-    .chat-messages {
-        padding: 8px;
-    }
-    
-    .message-text {
-        padding: 8px 10px;
-        font-size: 13px;
-    }
-    
-    .emoji-picker {
-        width: 95%;
-        right: 2.5%;
-        left: 2.5%;
-    }
-    
-    .emoji-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
-    .emoji-item {
-        font-size: 18px;
-        padding: 4px;
-    }
-}
-</style>
-
 <script>
+// Toggle Sidebar for Mobile Viewports
+function toggleSidebar() {
+    const sidebar = document.getElementById('dashboard-sidebar');
+    sidebar.classList.toggle('mobile-open');
+}
+
 // Toggle popup windows
 function toggleChatPopup() {
     const popup = document.getElementById('chat-popup');
@@ -1756,8 +2052,7 @@ function loadChatHistory() {
     fetch('/ai/chatbot/')
         .then(response => response.text())
         .then(html => {
-            // Extract chat history from the response (simplified approach)
-            // In production, you might want to create a dedicated API endpoint
+            // Extract chat history from the response
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const chatHistoryElements = doc.querySelectorAll('.chat-message');
@@ -1781,7 +2076,6 @@ function loadChatHistory() {
             console.error('Error loading chat history:', error);
         });
 }
-
 
 function escapeHtml(text) {
     const div = document.createElement('div');
@@ -1807,13 +2101,11 @@ function handleTyping() {
     
     if (input.value.trim() && !isTyping) {
         isTyping = true;
-        // Here you could send typing status to server
     }
     
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(() => {
         isTyping = false;
-        // Here you could send stop typing status to server
     }, 1000);
 }
 
@@ -1887,7 +2179,6 @@ function insertEmoji(emoji) {
 }
 
 function attachFile() {
-    // Create a hidden file input
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*,.pdf,.doc,.docx';
@@ -1896,7 +2187,6 @@ function attachFile() {
     fileInput.onchange = function(e) {
         const file = e.target.files[0];
         if (file) {
-            // Handle file attachment
             const chatMessages = document.getElementById('chat-messages');
             const fileMessage = document.createElement('div');
             fileMessage.className = 'user-message';
@@ -1942,18 +2232,20 @@ function handleChatKeyPress(event) {
 }
 
 function showNotification(message) {
-    // Simple notification (you can enhance this)
     const notification = document.createElement('div');
     notification.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        background: #4caf50;
+        background: #10b981;
         color: white;
-        padding: 15px 20px;
+        padding: 12px 20px;
         border-radius: 8px;
         z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 500;
     `;
     notification.textContent = message;
     document.body.appendChild(notification);
@@ -1963,12 +2255,35 @@ function showNotification(message) {
     }, 3000);
 }
 
-// Initialize messages badge (you can update this with actual count)
+// Toggle Sidebar for Mobile Viewports
+function toggleSidebar() {
+    const sidebar = document.getElementById('dashboard-sidebar');
+    sidebar.classList.toggle('mobile-open');
+}
+
+// Initialize messages badge count
 document.addEventListener('DOMContentLoaded', function() {
     const badge = document.getElementById('messages-badge');
     if (badge) {
-        badge.textContent = '2'; // Example count
+        badge.textContent = '2';
+    }
+
+    // Animate the rehab risk fill bar
+    const riskFill = document.querySelector('.rehab-risk-fill');
+    if (riskFill) {
+        const riskLevel = parseInt(riskFill.getAttribute('data-risk')) || 0;
+        setTimeout(() => {
+            riskFill.style.width = riskLevel + '%';
+            if (riskLevel < 30) {
+                riskFill.style.background = 'linear-gradient(90deg, #1dd1a1, #10ac84)';
+            } else if (riskLevel < 70) {
+                riskFill.style.background = 'linear-gradient(90deg, #feca57, #f0b447)';
+            } else {
+                riskFill.style.background = 'linear-gradient(90deg, #ff6b6b, #ee5a5a)';
+            }
+        }, 200);
     }
 });
 </script>
+
 {% endblock %}

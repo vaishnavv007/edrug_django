@@ -272,7 +272,50 @@ class EducationalResourceDetailView(DetailView):
 
 @login_required
 def dashboard(request):
-    return render(request, 'core/dashboard.html')
+    context = {}
+
+    # Regular users: load their active rehabilitation plan
+    if not (request.user.is_admin or request.user.is_expert or request.user.is_moderator):
+        plan = RehabilitationPlan.objects.filter(user=request.user, is_active=True).first()
+        context['rehab_plan'] = plan
+        if plan:
+            context['daily_progress'] = DailyProgress.objects.filter(
+                rehabilitation_plan=plan
+            ).order_by('-date')[:5]
+
+    # Admin: load user progress monitoring stats
+    if request.user.is_admin:
+        context['users_with_plans'] = User.objects.filter(
+            rehabilitation_plans__is_active=True
+        ).distinct().count()
+        context['flagged_progress'] = DailyProgress.objects.filter(
+            self_harm_detected=True
+        ).select_related('rehabilitation_plan', 'rehabilitation_plan__user').order_by('-date')[:5]
+
+    # Expert: load expert dashboard stats
+    if request.user.is_expert:
+        context['high_risk_users'] = User.objects.filter(is_high_risk=True).count()
+        context['total_assessments'] = UserAssessment.objects.count()
+        context['high_risk_assessments'] = UserAssessment.objects.filter(severity_level='Critical').count()
+        context['verified_posts_count'] = Post.objects.filter(verified_content=True).count()
+        context['recent_critical_assessments'] = UserAssessment.objects.filter(
+            severity_level='Critical'
+        ).select_related('user').order_by('-created_at')[:5]
+
+    # Moderator: load moderation stats
+    if request.user.is_moderator and not request.user.is_admin:
+        context['total_reports'] = Report.objects.count()
+        context['pending_reports'] = Report.objects.filter(reviewed=False).count()
+        context['fake_posts'] = Post.objects.filter(is_fake=True).count()
+        context['potentially_fake_count'] = Post.objects.filter(
+            potentially_fake=True, is_fake=False
+        ).count()
+        context['recent_reports'] = Report.objects.filter(
+            reviewed=False
+        ).select_related('post', 'user', 'post__user').order_by('-created_at')[:5]
+
+    return render(request, 'core/dashboard.html', context)
+
 
 
 @login_required
